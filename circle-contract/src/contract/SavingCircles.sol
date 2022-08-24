@@ -17,15 +17,14 @@ contract SavingGroups is Modifiers {
     // Information for each participant of a round
     struct Participant {
         address userAddr; // Stores the users address
-        uint8 userTurn; // Stores the selected turn by the user
-        uint256 availableCashIn; // Amount available in CashIn
-        uint256 availableSavings;//Amount Available to withdraw
+        uint256 depositFee; // Stores the user’s deposit fee balance
+        uint256 availableSavings;// Amount Available to Withdraw
         uint256 assignedPayments; // Assigned either by payment or debt
-        uint256 unassignedPayments;
+        uint256 unassignedPayments; // 
         uint8 latePayments; // Late Payments incurred by the user
         uint256 owedTotalCashIn; // Amount taken in credit from others cashIn
-        bool isActive; // Defines if the user is participating in the current round
-        uint256 withdrewAmount; // Stores the amount the user has withdrawn from the round
+        bool isActive; // Defines if the user is participating in the current saving circle
+        uint256 withdrewAmount; // Stores the amount the user has withdrawn from the circle
     }
 
     // Saving Circle Variables
@@ -35,13 +34,12 @@ contract SavingGroups is Modifiers {
     uint256 public groupSize; // Number of slots for users to participate on the saving circle
     address public devFund; // The deposit fees will be sent here
     uint256 public payTime = 0; // How many days users have to pay per round
-    mapping(address => Participant) public participant; 
+    mapping(address => Participant) public participants; 
 
     //Counters and flags
-    uint256 usersCounter = 0;
-    uint8 public turn = 1; //Current cycle/round in the saving circle
+    uint256 participantCounter = 0; // Keeps track of how many participants are registered
+    uint8 public round = 1; // Current round in the saving circle
     uint256 public startTime;
-    address[] public addressOrderList;
     uint256 public totalCashIn = 0;
     Stages public stage;
     bool public outOfFunds = false;
@@ -76,7 +74,6 @@ contract SavingGroups is Modifiers {
         groupSize = _groupSize;
         devFund = _devFund;
         stage = Stages.Setup;
-        addressOrderList = new address[](_groupSize);
         payTime = _payTime *86400;
         
         emit RoundCreated(saveAmount, groupSize);
@@ -87,20 +84,12 @@ contract SavingGroups is Modifiers {
         _;
     }
 
-    function registerUser(uint8 _userTurn)
-    external atStage(Stages.Setup)
-    {
-        require(
-            !users[msg.sender].isActive,
-            "Ya estas registrado en esta ronda"
-        );
-        require(usersCounter < groupSize, "El grupo esta completo"); //the saving circle is full
-        require(
-            addressOrderList[_userTurn - 1] == address(0),
-            "Este lugar ya esta ocupado"
-        );
-        usersCounter++;
-        users[msg.sender] = User(msg.sender, _userTurn, cashIn, 0, 0, 0, 0, 0, true, 0); //create user
+    function registerParticipant(uint8 _userTurn) external atStage(Stages.Setup) {
+        require(!participants[msg.sender].isActive, "You are already registered.");
+        require(usersCounter < groupSize, "The current saving circle is full.");
+        participantCounter++;
+        // LEFT OFF HERE
+        participant[msg.sender] = Participant(msg.sender, cashIn, 0, 0, 0, 0, 0, true, 0); //create user
         (bool registerSuccess) = transferFrom(address(this), cashIn);
         emit PayCashIn(msg.sender, registerSuccess);
         (bool payFeeSuccess) = transferFrom(devFund, feeCost);
