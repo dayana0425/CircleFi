@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./Modifiers.sol";
+import "./Escrow.sol";
 
 contract SavingGroups is Modifiers {
     // Stages of the round
@@ -21,7 +22,7 @@ contract SavingGroups is Modifiers {
         uint256 assignedPayment; // Assigned payment at current round
         uint256 amountPaid; // What they paid so far for the current round
         bool fullyPaid; // If user paid the full amount for the current round
-
+        Escrow escrow;
     }
 
     // Saving Circle Variables
@@ -58,7 +59,7 @@ contract SavingGroups is Modifiers {
         uint256 _groupSize,
         address _host,
         uint256 _payTime,
-        address _devFund,
+        address _devFund
     ) public {
         require(_host != address(0), "Host's address cannot be zero");
         require(_groupSize > 1 && _groupSize <= 12, "_groupSize must be greater than 1 and less than or equal to 12");
@@ -85,8 +86,8 @@ contract SavingGroups is Modifiers {
         require(!participants[msg.sender].isActive, "You are already registered.");
         require(participantCounter < groupSize, "The current saving circle is full.");
         participantCounter++;
-        participants[msg.sender] = Participant(msg.sender, depositFee, 0, 0, 0, 0, 0, true, 0);
-        (bool registerSuccess) = transferFrom(address(this), depositFee);
+        Escrow escrow = new Escrow(host, msg.sender, depositFee);
+        participants[msg.sender] = Participant(msg.sender, depositFee, 0, 0, 0, 0, 0, true, 0, escrow);
         emit PayDeposit(msg.sender, registerSuccess);
         totalDepositSum += depositFee;
         emit RegisterUser(msg.sender);
