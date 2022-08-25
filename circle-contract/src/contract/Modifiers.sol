@@ -2,14 +2,13 @@
 pragma solidity ^0.8.0;
 
 abstract contract Modifiers {
-    modifier onlyAdmin(address admin) {
-        require(msg.sender == admin, "Only the host/admin can call this function.");
+    modifier onlyHost(address host) {
+        require(msg.sender == host, "Only the host/admin can call this function.");
         _;
     }
 
-    modifier isRegisteredUser(bool user) {
+    modifier isRegisteredParticipant(bool user) {
         require(user == true, "User is not registered for Circle.");
         _;
     }
 }
-
