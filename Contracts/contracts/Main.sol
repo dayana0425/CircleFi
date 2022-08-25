@@ -2,63 +2,41 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/access/IAccessControl.sol";
-// import "./SavingGroups.sol";
-// import "./BLXToken.sol";
+import "./SavingCircle.sol";
 
 contract Main is AccessControl {
-    address public devFund = 0x4bFaF8ff960622b702e653C18b3bF747Abab4368;
-    uint256 public fee = 5;
-    IAccessControl public Iblx;
-    BLXToken public blx;
+    address public devFund = 0xC0c630f5c9A78A75a92617852AD0F4E80BF252Cf; // Daiana's Dev Acct
 
-    event RoundCreated(SavingGroups childRound);
+    event SavingCircleCreated(SavingCircle newSavingCircle);
 
     constructor() public {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function createRound(
-        uint256 _warranty,
-        uint256 _saving,
-        uint256 _groupSize,
-        uint256 _adminFee,
-        uint256 _payTime,
-        ERC20 _token,
-        address _blxaddr
-    ) external payable returns (address) {
-        Iblx = IAccessControl(_blxaddr);
-        blx = BLXToken(_blxaddr);
-        SavingGroups newRound = new SavingGroups(
-            _warranty,
-            _saving,
-            _groupSize,
-            msg.sender,
-            _adminFee,
-            _payTime,
-            _token,
-            blx,
-            devFund,
-            fee
-        );
-        Iblx.grantRole(
-            0x0000000000000000000000000000000000000000004d494e5445525f524f4c45,
-            address(newRound)
-        ); //minter 0x0000000000000000000000000000000000000000004d494e5445525f524f4c45
-        emit RoundCreated(newRound);
-        return address(newRound);
+    /* 
+    Create a Saving Circle:
+        - _saveAmountPerRound: Payment per round
+        - _groupSize: Number of participants
+        - _payTime: Number of days each round will last (Ex: Weekly = 7)
+    */
+    function createSavingCircle (   
+                        uint256 _saveAmountPerRound,
+                        uint256 _groupSize, 
+                        uint256 _payTime
+    ) external payable returns(address) {
+        SavingCircle newSavingCircle = new SavingCircle (  
+                                    _saveAmountPerRound, 
+                                    _groupSize,
+                                    msg.sender, // Host of Saving Circle
+                                    _payTime,
+                                    devFund
+                                );
+        emit SavingCircleCreated(newSavingCircle);
+        return address(newSavingCircle);
     }
 
-    function setDevFundAddress(address _devFund)
-        public
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        //admin 0x0000000000000000000000000000000000000000000041444d494e5f524f4c45
+    function setDevFundAddress (address _devFund) public onlyRole(DEFAULT_ADMIN_ROLE) {
         devFund = _devFund;
     }
 
-    function setFee(uint256 _fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        //admin 0x0000000000000000000000000000000000000000000041444d494e5f524f4c45
-        fee = _fee;
-    }
 }
