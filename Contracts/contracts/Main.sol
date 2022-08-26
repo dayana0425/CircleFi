@@ -5,8 +5,6 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./SavingCircle.sol";
 
 contract Main is AccessControl {
-    address public devFund = 0xC0c630f5c9A78A75a92617852AD0F4E80BF252Cf; // Daiana's Dev Acct
-
     event SavingCircleCreated(SavingCircle newSavingCircle);
 
     constructor() public {
@@ -28,8 +26,7 @@ contract Main is AccessControl {
                                     _saveAmountPerRound, 
                                     _groupSize,
                                     msg.sender, // Host of Saving Circle
-                                    _payTime,
-                                    devFund
+                                    _payTime
                                 );
         emit SavingCircleCreated(newSavingCircle);
         return address(newSavingCircle);
