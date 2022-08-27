@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Modifiers.sol";
+import "./Escrow.sol";
 
 contract SavingCircle is Modifiers, VRFConsumerBase {
     using SafeMath for uint256;
@@ -27,8 +28,9 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         address userAddr; // User's address
         uint256 depositFee; // Deposit fee that the user paid
         bool isActive; // Defines if the user is participating in the current saving circle
-        uint256 amountPaid; // What they paid so far for the current round - reinitialize when round ends
-        bool fullyPaid; // If user paid the full amount for the current round - reintialize when round ends
+        uint256 amountPaid; // What they paid so far for the current round
+        bool fullyPaid; // If user paid the full amount for the current round
+        Escrow escrow;
     }
 
     // Saving Circle Setup Variables
@@ -76,7 +78,6 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
     event AllRoundsCompleted(address indexed savingCircle, bool indexed success);
     event CompleteCircle(address indexed roundAddress, uint256 indexed startAt, uint256 indexed endAt);
     event EmergencyWithdrawal(address roundAddress, uint totalFunds, address participantAddress, uint256 sentFunds);
-
 
     /* 
         Constructor 
@@ -214,7 +215,6 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
 
         emit RoundEndedAndUserWasPaidOut(winnerAddress, sent);
     }
-
 
     /* 
         Stage: FINISHED
