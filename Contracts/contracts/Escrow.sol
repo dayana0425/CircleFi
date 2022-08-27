@@ -1,39 +1,40 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: BSD 3-Clause License
 pragma solidity ^0.8.0;
 
-import "./interfaces/IERC20.sol";
-import "./interfaces/IWETHGateway.sol";
+import "./IERC20.sol";
+import "./ILendingPool.sol";
 
 contract Escrow {
     address arbiter;
     address depositor;
     address beneficiary;
-    uint256 initialDeposit;
-    
-    IWETHGateway gateway = IWETHGateway(0xDcD33426BA191383f1c9B431A342498fdac73488);
-    IERC20 aWETH = IERC20(0x030bA81f1c18d280636F32af80b9AAd02Cf0854e);
+    uint initialDeposit;
 
+    // the mainnet AAVE v2 lending pool
+    ILendingPool pool = ILendingPool(0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9);
+    // aave interest bearing DAI
+    IERC20 aDai = IERC20(0x028171bCA77440897B824Ca71D1c56caC55b68A3);
+    // the DAI stablecoin 
+    IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     constructor(address _arbiter, address _beneficiary, uint256 _amount) payable {
         arbiter = _arbiter;
         beneficiary = _beneficiary;
         depositor = msg.sender;
-        initialDeposit = _amount;
+        initialDeposit = _amount; 
+    
+        dai.transferFrom(msg.sender, address(this), _amount);
+        dai.approve(address(pool), _amount);
 
-        // TODO: Deposit ETH through the WETH gateway
-        gateway.depositETH{value: address(this).balance}(address(this), 0);
-        
+        pool.deposit(address(dai), _amount, address(this), 0);
     }
-
-    receive() external payable {}
 
     function approve() external {
         require(msg.sender == arbiter);
-        uint balance = aWETH.balanceOf(address(this));
-        aWETH.approve(address(gateway), balance);
 
-        gateway.withdrawETH(type(uint256).max, address(this));
-        payable(beneficiary).transfer(initialDeposit);
-
-        payable(depositor).transfer(address(this).balance);
+        uint balance = aDai.balanceOf(address(this));
+        
+        pool.withdraw(address(dai), initialDeposit, beneficiary);
+        
+        pool.withdraw(address(dai), type(uint).max, beneficiary);
     }
 }
