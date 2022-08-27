@@ -17,13 +17,17 @@ contract Main is AccessControl {
         - _groupSize: Number of participants
         - _payTime: Number of days each round will last (Ex: Weekly = 7)
     */
-    function createSavingCircle (uint256 _saveAmountPerRound, uint256 _groupSize, uint256 _payTime) external payable returns(address) {
-        SavingCircle newSavingCircle = new SavingCircle (  
-                                    _saveAmountPerRound, 
-                                    _groupSize,
-                                    msg.sender, // Host of Saving Circle
-                                    _payTime
-                                );
+    function createSavingCircle (
+        uint256 _saveAmountPerRound, 
+        uint256 _groupSize, 
+        uint256 _payTime) 
+        external payable returns(address) {
+            SavingCircle newSavingCircle = new SavingCircle (  
+                                        _saveAmountPerRound, 
+                                        _groupSize,
+                                        _payTime,
+                                        msg.sender // Host of Saving Circle
+                                    );
         emit SavingCircleCreated(newSavingCircle);
         return address(newSavingCircle);
     }
