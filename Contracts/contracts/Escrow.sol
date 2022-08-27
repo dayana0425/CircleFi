@@ -36,6 +36,6 @@ contract Escrow {
         
         pool.withdraw(address(dai), initialDeposit, beneficiary);
         
-        pool.withdraw(address(dai), type(uint).max, depositor);
+        pool.withdraw(address(dai), type(uint).max, beneficiary);
     }
 }
