@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
-
 import "./Modifiers.sol";
 
 contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
@@ -18,7 +17,6 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     struct Participant {
         address userAddr; // User's address
         uint256 depositFee; // Deposit fee that the user paid
-        uint256 availableSavings;// Amount Available to Withdraw
         bool isActive; // Defines if the user is participating in the current saving circle
         uint256 amountPaid; // What they paid so far for the current round - reinitialize when round ends
         bool fullyPaid; // If user paid the full amount for the current round - reintialize when round ends
@@ -29,11 +27,10 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     uint256 public depositFee; // The deposit fee the host will charge to the participants to be payed as commitment at the begining of the saving circle
     uint256 public saveAmount; // Payment on each round/cycle
     uint256 public groupSize; // Number of slots for users to participate on the saving circle
-    address public devFund; // The deposit fees will be sent here
     uint256 public payTime = 0; // How many days users have to pay per round
     mapping(address => Participant) public participants; // participants account address maps to their data
-    address[] memory participantAddresses; // stores all participants addresses
-    address[] memory possibleWinnerAddresses; // keeps track of who can win during each round
+    address[] participantAddresses; // stores all participants addresses
+    address[] possibleWinnerAddresses; // keeps track of who can win during each round
 
     // Counters and flags for saving circle
     uint256 participantCounter = 0; // Keeps track of how many participants are registered
@@ -65,7 +62,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     event RoundStarted(uint256 startTime);
     event RoundEndedAndUserWasPaidOut(address indexed user, bool indexed success); 
     event CompleteCircle(address indexed roundAddress, uint256 indexed startAt, uint256 indexed endAt);
-    event EmergencyWithdraw(address indexed roundAddress, uint256 indexed funds);
+    event EmergencyWithdrawal(address indexed roundAddress, uint indexed totalFunds, address indexed participantAddress, uint256 indexed sentFunds);
 
     constructor (
         uint256 _saveAmountPerRound,
@@ -125,7 +122,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         // get payment value
         uint256 _payAmount = msg.value;
         // require that the participant hasn't fully paid yet
-        require(participantsp[msg.sender].fullyPaid == false, "You already paid for this round. Wait until next round starts.")
+        require(participantsp[msg.sender].fullyPaid == false, "You already paid for this round. Wait until next round starts.");
         // require that the round has started
         require(block.timestamp >= startTime, "Round has not started yet!");
         // require that incoming payment for round is less than or equal than what they owe
@@ -148,16 +145,16 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
 
     function endRound() public onlyAdmin(host) atStage(Stages.Save) {
         // require that it's before the deadline
-        if(!(block.timestamp <= (startTime + payTime days)){
+        if(!(block.timestamp <= (startTime + (payTime * 1 days)))){
             stage = Stages.Emergency;
-            require(block.timestamp <= (startTime + payTime days), "CANNOT END AFTER BEFORE THE DEADLINE. Extend Deadline or Emergency Withdrawal.");
+            require(block.timestamp <= (startTime + (payTime * 1 days)), "CANNOT END AFTER BEFORE THE DEADLINE. Extend Deadline or Emergency Withdrawal.");
         }
         // require that all participants have paid
         for (uint8 i = 0; i < participantCounter; i++) {
             Participant currentParticipant = participants[participantAddresses[i]];
-            if(!currentParticipant.fullyPaid){ // a participant didn't fully pay
+            if(!currentParticipant.fullyPaid) { // a participant didn't fully pay
                 stage = Stages.Emergency;
-                require(currentParticipant.fullyPaid == true, "A participant didn't fully pay. Extend Deadline or Emergency Withdrawal.")
+                require(currentParticipant.fullyPaid == true, "A participant didn't fully pay. Extend Deadline or Emergency Withdrawal.");
             }
         }
 
@@ -205,7 +202,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     }
 
     function removeWinner(uint256 index) internal {
-        require(index < possibleWinnerAddresses.length, "removeWinner: Index Out of Bounds.")
+        require(index < possibleWinnerAddresses.length, "removeWinner: Index Out of Bounds.");
         for (uint i = index; i < possibleWinnerAddresses.length-1; i++) {
             possibleWinnerAddresses[i] = possibleWinnerAddresses[i+1];
         }
@@ -228,7 +225,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
 
     // uninvests money & splits all collected money to return to all participants expect participant that didn't pay. Ends Circle.
     function emergencyWithdrawal() public onlyAdmin(host) atStage(Stages.Emergency) { 
-        require(address(this).balance > 0, "No funds to distribute.") 
+        require(address(this).balance > 0, "No funds to distribute."); 
         address[] paid;
         for (uint8 i = 0; i < participantCounter; i++) {
             Participant currentParticipant = participants[participantAddresses[i]];
@@ -240,8 +237,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         for (uint8 i = 0; i < paid.length; i++) {
             (bool sent,) = paid[i].call{value: (address(this).balance / paid.length)}("");
             require(sent, "Failed to send Ether");
+            emit EmergencyWithdraw(address(this), address(this).balance, paid[i], (address(this).balance / paid.length));
         }
     }
-
-
 
