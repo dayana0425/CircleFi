@@ -67,16 +67,16 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
     uint public randomResult;  
 
     // Events
-    event SavingCircleEstablished(uint256 indexed saveAmount, uint256 indexed groupSize);
-    event RegisterUser(address indexed user);
-    event PaidDeposit(address indexed user, bool indexed success);
-    event PaidRound(address indexed user, bool indexed success);
-    event PartiallyPaidRound(address indexed user, bool indexed success);
+    event SavingCircleEstablished(uint256 saveAmount, uint256 groupSize);
+    event RegisterUser(address user);
+    event PaidDeposit(address user, bool success);
+    event PaidRound(address user, bool success);
+    event PartiallyPaidRound(address user, bool success);
     event StartedFirstRound(uint256 startTime);
     event EveryonePaid(address savingCircle, bool success);
-    event RoundEndedAndUserWasPaidOut(address indexed user, bool indexed success); 
-    event AllRoundsCompleted(address indexed savingCircle, bool indexed success);
-    event CompleteCircle(address indexed roundAddress, uint256 indexed startAt, uint256 indexed endAt);
+    event RoundEndedAndUserWasPaidOut(address user, bool success); 
+    event AllRoundsCompleted(address savingCircle, bool success);
+    event CompleteCircle(address roundAddress, uint256 startAt, uint256 endAt);
     event EmergencyWithdrawal(address roundAddress, uint totalFunds, address participantAddress, uint256 sentFunds);
 
     /* 
@@ -100,7 +100,10 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         participantCounter++;
         participantAddresses.push(msg.sender);
         possibleWinnerAddresses.push(msg.sender);
-        participants[msg.sender] = Participant(msg.sender, msg.value, false, 0, false);
+
+        // escrow 
+        Escrow escrow = new Escrow(host, msg.sender, depositFee);
+        participants[msg.sender] = Participant(msg.sender, msg.value, false, 0, false, escrow);
         totalDepositFeesSum += depositFee;
 
         emit PaidDeposit(msg.sender, true);
@@ -119,7 +122,11 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         participantCounter++; // keeping track of circle participants
         participantAddresses.push(msg.sender);
         possibleWinnerAddresses.push(msg.sender);
-        participants[msg.sender] = Participant(msg.sender, msg.value, false, 0, false); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
+        
+        // escrow
+        Escrow escrow = new Escrow(host, msg.sender, depositFee);
+
+        participants[msg.sender] = Participant(msg.sender, msg.value, false, 0, false, escrow); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
         totalDepositFeesSum += depositFee; // keeping track of all deposits paid so far
 
         emit PaidDeposit(msg.sender, true);
@@ -237,9 +244,9 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         randomResult = randomness.mod(possibleWinnerAddresses.length).add(1);
     }
 
-    function getRandomWinnerAddress() internal returns (address addr) {
+    function getRandomWinnerAddress() internal view returns (address addr) {
         // get winner address
-        address addr = possibleWinnerAddresses[randomResult];
+        addr = possibleWinnerAddresses[randomResult];
     }
 
     function removeWinner(uint256 index) internal {
