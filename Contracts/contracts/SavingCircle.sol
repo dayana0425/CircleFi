@@ -71,7 +71,9 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
     event PaidRound(address indexed user, bool indexed success);
     event PartiallyPaidRound(address indexed user, bool indexed success);
     event StartedFirstRound(uint256 startTime);
+    event EveryonePaid(address savingCircle, bool success);
     event RoundEndedAndUserWasPaidOut(address indexed user, bool indexed success); 
+    event AllRoundsCompleted(address indexed savingCircle, bool indexed success);
     event CompleteCircle(address indexed roundAddress, uint256 indexed startAt, uint256 indexed endAt);
     event EmergencyWithdrawal(address roundAddress, uint totalFunds, address participantAddress, uint256 sentFunds);
 
@@ -156,10 +158,15 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             participants[msg.sender].amountPaid += _payAmount;
             emit PartiallyPaidRound(msg.sender, true);
         }
+        
+        // emit event when everyone has paid
+        if(paidCounter == participantCounter) {
+            emit EveryonePaid(address(this), true);
+        }
     }
 
 
-    function endRoundAndStartNextRound() public onlyHost(host) atStage(Stages.Save) {
+    function endRoundAndStartNextRound() public onlyHost(host) atStage(Stages.Save) { // the host has to manually end the round and start the next one
         // require that it's before the deadline
         if(!(block.timestamp <= (startTime + (payTime * 86400)))){
             stage = Stages.Emergency;
@@ -187,6 +194,13 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
 
         require(sent, "Failed to send Ether");
 
+        // check if it's the final round
+        if(round == participantCounter && possibleWinnerAddresses.length == 0) {
+            stage = Stages.Finished;
+            emit AllRoundsCompleted(address(this), true);
+            return;
+        }
+
         // increment round to next one
         round++; 
         // reset participant data for new round
@@ -201,7 +215,11 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         emit RoundEndedAndUserWasPaidOut(winnerAddress, sent);
     }
 
-    function completeCircle() public onlyHost(host) atStage(Stages.Save) { // allow host to complete & archive the circle once it's the last round 
+
+    /* 
+        Stage: FINISHED
+    */
+    function completeCircle() public onlyHost(host) atStage(Stages.Finished) { // allow host to complete & archive the circle once it's the last round 
         // require that everyone has been paid out && all rounds happened
         require(possibleWinnerAddresses.length == 0 && round == participantCounter, "Not everyone has been paid out so saving circle cannot be completed.");
         emit CompleteCircle(address(this), startTime, block.timestamp);
