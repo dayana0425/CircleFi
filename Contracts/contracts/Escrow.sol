@@ -1,5 +1,5 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity ^0.7.5;
+// SPDX-License-Identifier: BSD 3-Clause License
+pragma solidity ^0.8.0;
 
 import "./IERC20.sol";
 import "./ILendingPool.sol";
