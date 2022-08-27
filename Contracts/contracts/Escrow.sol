@@ -8,12 +8,12 @@ contract Escrow {
     address arbiter;
     address depositor;
     address beneficiary;
-    uint initialDeposit;
+    uint256 initialDeposit;
     
     IWETHGateway gateway = IWETHGateway(0xDcD33426BA191383f1c9B431A342498fdac73488);
     IERC20 aWETH = IERC20(0x030bA81f1c18d280636F32af80b9AAd02Cf0854e);
 
-    constructor(address _arbiter, address _beneficiary, uint _amount) payable {
+    constructor(address _arbiter, address _beneficiary, uint256 _amount) payable {
         arbiter = _arbiter;
         beneficiary = _beneficiary;
         depositor = msg.sender;
