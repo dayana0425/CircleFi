@@ -37,6 +37,11 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@chainlink/contracts@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@chainlink/contracts/-/contracts-0.4.1.tgz#1c4f824920b89fbe5ff2294c35a86bca83c8253d"
+  integrity sha512-eC8biY6Ks8k9kZKVt5305veCP3z57yyiy6Os5aR6auta6Bp34xWQ/s4qvrifcW4FNgWw1HJPwMPXDGfiehcLjg==
+
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz#00629c35a688e05a88b1cda684fb9d5e73f000a1"
@@ -692,7 +697,7 @@
     find-up "^4.1.0"
     fs-extra "^8.1.0"
 
-"@openzeppelin/contracts@^4.5.0":
+"@openzeppelin/contracts@^4.7.3":
   version "4.7.3"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.7.3.tgz#939534757a81f8d69cc854c7692805684ff3111e"
   integrity sha512-dGRS0agJzu8ybo44pCIf3xBaPQN/65AIXNgK8+4gzKd5kbvlqyxryUYVLJv7fK98Seyd2hDZzVEHSWAh0Bt1Yw==
