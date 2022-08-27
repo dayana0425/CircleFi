@@ -16,8 +16,7 @@ contract Escrow {
     IERC20 aDai = IERC20(0x028171bCA77440897B824Ca71D1c56caC55b68A3);
     // the DAI stablecoin 
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-
-    constructor(address _arbiter, address _beneficiary, uint _amount) {
+    constructor(address _arbiter, address _beneficiary, uint256 _amount) payable {
         arbiter = _arbiter;
         beneficiary = _beneficiary;
         depositor = msg.sender;

@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers } from "hardhat";
 import "dotenv/config";
 import * as savingCircleJson from "../artifacts/contracts/SavingCircle.sol/SavingCircle.json";
 
@@ -33,7 +33,20 @@ async function main() {
     signer
   );
 
-  const savingCircleContract = await SavingCircleContractFactory.deploy();
+  if (process.argv.length < 2) throw new Error("Save Amount Per Round Missing.");
+  const saveAmountPerRound = ethers.utils.parseEther(process.argv[2].toString());
+  console.log("Save Amount Per Round: ", saveAmountPerRound);
+  if (process.argv.length < 3) throw new Error("Group Size Missing.");
+  const groupSize = process.argv[3];
+  console.log("Group Size: ", groupSize);
+  if (process.argv.length < 4) throw new Error("Pay Time Missing.");
+  const payTime = process.argv[4];
+  console.log("Pay Time (Days): ", payTime);
+  if (process.argv.length < 5) throw new Error("Host Is Missing.");
+  const host = process.argv[5];
+  console.log("Host: ", host);
+// EX Arguments: 0.1, 4, 1, 0xC0c630f5c9A78A75a92617852AD0F4E80BF252Cf
+  const savingCircleContract = await SavingCircleContractFactory.deploy(saveAmountPerRound, groupSize, payTime, host);
   console.log("Awaiting confirmations");
   await savingCircleContract.deployed();
   console.log("Completed");
