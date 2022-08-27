@@ -35,7 +35,7 @@ const config: HardhatUserConfig = {
   paths: { tests: "tests" },
   networks: {
     ropsten: {
-      url: process.env.GOE || "",
+      url: process.env.ROPSTEN_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       gasPrice: 20000000000,
