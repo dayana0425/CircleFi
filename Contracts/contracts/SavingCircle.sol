@@ -2,11 +2,13 @@
 pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
+import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Modifiers.sol";
 
-contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
+contract SavingCircle is Modifiers, VRFConsumerBase { // parent contracts
+    using SafeMath for uint256;
     // Stages of the saving circle 
-    enum Stages { 
+    enum Stages {
         Setup, // setting up the saving circle (where participants can register & we collect deposits)
         Save, // saving stage is when the rounds have begun & participants can contribute money
         Finished, // the saving circle successfully completed
@@ -62,14 +64,10 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     event RoundStarted(uint256 startTime);
     event RoundEndedAndUserWasPaidOut(address indexed user, bool indexed success); 
     event CompleteCircle(address indexed roundAddress, uint256 indexed startAt, uint256 indexed endAt);
-    event EmergencyWithdrawal(address indexed roundAddress, uint indexed totalFunds, address indexed participantAddress, uint256 indexed sentFunds);
+    event EmergencyWithdrawal(address roundAddress, uint totalFunds, address participantAddress, uint256 sentFunds);
 
-    constructor (
-        uint256 _saveAmountPerRound,
-        uint256 _groupSize,
-        address _host,
-        uint256 _payTime
-    ) VRFConsumerBase (vrf_cordinator_goerli, link_token_addr_goerli) public {
+    constructor (uint256 _saveAmountPerRound, uint256 _groupSize, address _host, uint256 _payTime) 
+    VRFConsumerBase (vrf_cordinator_goerli, link_token_addr_goerli) {
         require(_host != address(0), "Host's address cannot be zero");
         require(_groupSize > 1 && _groupSize <= 12, "_groupSize must be greater than 1 and less than or equal to 12");
         require(_saveAmountPerRound >= 1, "Saving Amount cannot be less than 1 ETH");
@@ -83,10 +81,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         payTime = _payTime;
         stage = Stages.Setup;
         
-        // setup randomness
-        keyHash = keyHash_goerli;
-        fee = fee_goerli;
-
+ 
         // emit that saving circle has been setup
         emit SavingCircleEstablished(saveAmount, groupSize);
     }
@@ -104,14 +99,14 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         participantCounter++; // keeping track of circle participants
         participantAddresses.push(msg.sender);
         possibleWinnerAddresses.push(msg.sender);
-        participants[msg.sender] = Participant(msg.sender, msg.value, 0, true, 0, 0, false); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
+        participants[msg.sender] = Participant(msg.sender, msg.value, false, 0, false); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
         totalDepositsSum += depositFee; // keeping track of all deposits paid so far
 
         emit PayDeposit(msg.sender, true);
         emit RegisterUser(msg.sender);
     }
 
-    function startRounds() external onlyAdmin(host) atStage(Stages.Setup) {
+    function startRounds() external onlyHost(host) atStage(Stages.Setup) {
         require(participantCounter == groupSize, "There are still spots left. All spots must be filled in order to start the rounds.");
         stage = Stages.Save;
         startTime = block.timestamp;
@@ -122,7 +117,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         // get payment value
         uint256 _payAmount = msg.value;
         // require that the participant hasn't fully paid yet
-        require(participantsp[msg.sender].fullyPaid == false, "You already paid for this round. Wait until next round starts.");
+        require(participants[msg.sender].fullyPaid == false, "You already paid for this round. Wait until next round starts.");
         // require that the round has started
         require(block.timestamp >= startTime, "Round has not started yet!");
         // require that incoming payment for round is less than or equal than what they owe
@@ -143,7 +138,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     }
 
 
-    function endRound() public onlyAdmin(host) atStage(Stages.Save) {
+    function endRound() public onlyHost(host) atStage(Stages.Save) {
         // require that it's before the deadline
         if(!(block.timestamp <= (startTime + (payTime * 1 days)))){
             stage = Stages.Emergency;
@@ -151,10 +146,9 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         }
         // require that all participants have paid
         for (uint8 i = 0; i < participantCounter; i++) {
-            Participant currentParticipant = participants[participantAddresses[i]];
-            if(!currentParticipant.fullyPaid) { // a participant didn't fully pay
+            if(!participants[participantAddresses[i]].fullyPaid) { // a participant didn't fully pay
                 stage = Stages.Emergency;
-                require(currentParticipant.fullyPaid == true, "A participant didn't fully pay. Extend Deadline or Emergency Withdrawal.");
+                require(participants[participantAddresses[i]].fullyPaid == true, "A participant didn't fully pay. Extend Deadline or Emergency Withdrawal.");
             }
         }
 
@@ -167,7 +161,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         
         // remove winner from being chosen again
         if(!sent) {   
-            removeWinner();
+            removeWinner(randomResult);
         }
 
         require(sent, "Failed to send Ether");
@@ -176,9 +170,8 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
         round++; 
         // reset participant data for new round
         for (uint8 i = 0; i < participantCounter; i++) {
-            Participant currentParticipant = participants[participantAddresses[i]];
-            currentParticipant.fullyPaid = false;
-            currentParticipant.amountPaid = 0;   
+            participants[participantAddresses[i]].fullyPaid = false;
+            participants[participantAddresses[i]].amountPaid = 0;   
         }
         // reinitialize round flags and counters
         paidCounter = 0; // participants that paid 
@@ -188,15 +181,15 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     }
 
     function initializeRandomness() internal atStage(Stages.Save) returns (bytes32 requestId) {
-        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK in contract." );
+        require(LINK.balanceOf(address(this)) >= fee_goerli, "Not enough LINK in contract." );
         return requestRandomness(keyHash_goerli, fee_goerli);
     }
 
-    function fulfillRandomness(bytes32 requestId, uint randomness) internal override {
+    function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
         randomResult = randomness.mod(possibleWinnerAddresses.length).add(1);
     }
 
-    function getRandomWinner() internal atStage(Stages.Save) returns (address winnerAddress) {
+    function getRandomWinnerAddress() internal atStage(Stages.Save) returns (address winnerAddress) {
         // get winner address
         address winnerAddress = possibleWinnerAddresses[randomResult];
     }
@@ -210,7 +203,7 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     }
 
     // allow host to complete & archive the circle once it's the last round 
-    function completeCircle() public onlyAdmin(host) atStage(Stages.Save) {
+    function completeCircle() public onlyHost(host) atStage(Stages.Save) {
         // require that everyone has been paid out
         require(possibleWinnerAddresses.length == 0, "Not everyone has been paid out so saving circle cannot be completed.");
         // distribute rewards to everyone
@@ -219,25 +212,24 @@ contract SavingGroups is Modifiers, VRFConsumerBaseV2 {
     }
 
     // extend deadline by 7 days for round so participants have more time to pay
-    function extendDeadline() public onlyAdmin(host) atStage(Stages.Emergency) {
-        _payTime += 7;
+    function extendDeadline() public onlyHost(host) atStage(Stages.Emergency) {
+        payTime += 7;
     }
 
     // uninvests money & splits all collected money to return to all participants expect participant that didn't pay. Ends Circle.
-    function emergencyWithdrawal() public onlyAdmin(host) atStage(Stages.Emergency) { 
+    function emergencyWithdrawal() public onlyHost(host) atStage(Stages.Emergency) { 
         require(address(this).balance > 0, "No funds to distribute."); 
-        address[] paid;
+        address[] memory paid;
         for (uint8 i = 0; i < participantCounter; i++) {
-            Participant currentParticipant = participants[participantAddresses[i]];
-            if(currentParticipant.fullyPaid){
-                paid.push(participantAddresses[i]);
+            if(participants[participantAddresses[i]].fullyPaid){
+                paid[i] = (participantAddresses[i]);
             }
         }
         
         for (uint8 i = 0; i < paid.length; i++) {
             (bool sent,) = paid[i].call{value: (address(this).balance / paid.length)}("");
             require(sent, "Failed to send Ether");
-            emit EmergencyWithdraw(address(this), address(this).balance, paid[i], (address(this).balance / paid.length));
+            emit EmergencyWithdrawal(address(this), address(this).balance, paid[i], (address(this).balance / paid.length));
         }
     }
-
+}

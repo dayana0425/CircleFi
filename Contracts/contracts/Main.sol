@@ -7,7 +7,7 @@ import "./SavingCircle.sol";
 contract Main is AccessControl {
     event SavingCircleCreated(SavingCircle newSavingCircle);
 
-    constructor() public {
+    constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
@@ -17,11 +17,7 @@ contract Main is AccessControl {
         - _groupSize: Number of participants
         - _payTime: Number of days each round will last (Ex: Weekly = 7)
     */
-    function createSavingCircle (   
-                        uint256 _saveAmountPerRound,
-                        uint256 _groupSize, 
-                        uint256 _payTime
-    ) external payable returns(address) {
+    function createSavingCircle (uint256 _saveAmountPerRound, uint256 _groupSize, uint256 _payTime) external payable returns(address) {
         SavingCircle newSavingCircle = new SavingCircle (  
                                     _saveAmountPerRound, 
                                     _groupSize,
@@ -31,9 +27,4 @@ contract Main is AccessControl {
         emit SavingCircleCreated(newSavingCircle);
         return address(newSavingCircle);
     }
-
-    function setDevFundAddress (address _devFund) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        devFund = _devFund;
-    }
-
 }
