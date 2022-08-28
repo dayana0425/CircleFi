@@ -2,12 +2,10 @@
 // If not, mint NFT 
 // If yes, update NFT metadata
 
-import { BigNumber, Contract, ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import "dotenv/config";
 import { setupProvider } from "../utils/providerUtils";
 import * as CircleNFTJson from "../../artifacts/contracts/CircleNFT.sol/CircleNFT.json";
-import { determineLevel, generateNFTMetadata } from "./tables/generateMetadata";
-import { IMAGE_MAP, Level } from "../types/metadataTypes";
 import { incrementRoundsForExistingUser, pushUserToTable } from "./tables/modifyTableData";
 import { CircleNFT } from "../../typechain";
 
@@ -44,19 +42,18 @@ async function mintOrUpdateNFT() {
     ) as CircleNFT;
 
     // Determine whether user is a holder of this NFT. If so, they have already completed previous rounds
-    const userNFTBalance: BigNumber = await nftContract.balanceOf(wallet.address);
+    const userNFTBalance = await nftContract.balanceOf(wallet.address);
     console.log(`User NFT balance: ${userNFTBalance}`);
-    const currTokenId: BigNumber = await nftContract.tokenIdCounter();
+    const currTokenId = await nftContract.tokenIdCounter();
     console.log(`Current tokenId: ${currTokenId}`);
 
     const mainTable: string = await nftContract.mainTable();
-    // console.log(`Main table name: ${mainTable}`);
+    console.log(`Main table name: ${mainTable}`);
     const attributesTable: string = await nftContract.attributesTable();
-    // console.log(`Attributes table name: ${attributesTable}`);
+    console.log(`Attributes table name: ${attributesTable}`);
 
     if (userNFTBalance.toNumber() > 0) {
-        // If the user already holds the NFT, no need to mint. Update metadata.
-        // TODO fill this in to just update metadata rather than mint
+        // If the user already holds the NFT, no need to mint. Update Tableland to evolve the user's NFT.
         console.log("User already holds this NFT. No need to mint.");
 
         console.log("Updating Tableland metadata for user");
@@ -75,68 +72,9 @@ async function mintOrUpdateNFT() {
         await mintTx.wait();
         console.log("NFT has been successfully minted for user.");
     }
-
-
-
-    // const userNFTBalance = await nftContract.balanceOf(wallet.address);
-/*     const completedCircles = 1;
-    const currTokenId = 1;
-    const mainTable = process.env.MAIN_TABLE ? process.env.MAIN_TABLE : "table_nft_main_5_500"
-    const attributesTable = process.env.ATTRIBUTES_TABLE ? process.env.ATTRIBUTES_TABLE : "table_nft_attributes_5_501"
-    await pushUserToTable(signer, completedCircles, currTokenId, mainTable, attributesTable);
-    console.log(`Metadata generated and pushed to table for user with tokenId 0`);
-
-    let mintTx = await nftContract.mint();
-    await mintTx.wait();
-    console.log(`NFT has been successfully minted for user. Tx hash: ${mintTx}`); */
-    // Determine whether user is a holder of this NFT. If so, they have already completed previous rounds
-    /*     const userNFTBalance = await nftContract.balanceOf(wallet.address);
-        console.log(`User NFT balance: ${userNFTBalance}`);
-        // sleep(1000);
-    
-        // Determine ID of the last created token
-        const currTokenId = await nftContract.tokenIdCounter(); */
-    /*     console.log(`Current tokenId: ${currTokenId}`); */
-    /*     sleep(1000);
-        const mainTable: string = await nftContract.mainTable();
-        console.log(`Main table name: ${mainTable}`);
-        sleep(3000);
-        const attributesTable: string = await nftContract.attributesTable();
-        console.log(`Attributes table name: ${attributesTable}`); */
-
-    /*     if (userNFTBalance > BigNumber.from(0)) {
-            // If the user already holds the NFT, no need to mint. Update metadata.
-    
-    
-    
-            // TODO fill this in to just update metadata rather than mint
-            console.log("user holds this NFT");
-        } else {
-            // If the user doesn't hold the NFT yet, mint the inital version of the NFT
-            console.log("User doesn't have any of this NFT. Need to mint beginner tier NFT.");
-    
-            const mainTable: string = await nftContract.mainTable();
-            console.log(`Main table name: ${mainTable}`);
-            const attributesTable: string = await nftContract.attributesTable();
-            console.log(`Attributes table name: ${attributesTable}`);
-    
-            const response = pushUserToTable(signer, 1, currTokenId.toNumber(), mainTable, attributesTable);
-            console.log(`Metadata generated and pushed to table for user with tokenId ${currTokenId}`);
-            
-            let mintTx = await nftContract.mint();
-            await mintTx.wait();
-            console.log("NFT has been successfully minted for user.");
-        } */
 }
 
-async function testNFTMinting() {
-    await mintOrUpdateNFT();
-}
-
-testNFTMinting();
-
-/* mintOrUpdateNFT().catch((error) => {
+mintOrUpdateNFT().catch((error) => {
     console.error(error);
     process.exitCode = 1;
 });
- */
