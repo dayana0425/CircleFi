@@ -5,7 +5,6 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Modifiers.sol";
 import "./Escrow.sol";
-import "hardhat/console.sol";
 
 contract SavingCircle is Modifiers, VRFConsumerBase {
     using SafeMath for uint256;
@@ -31,6 +30,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         bool isActive; // Defines if the user is participating in the current saving circle
         uint256 amountPaid; // What they paid so far for the current round
         bool fullyPaid; // If user paid the full amount for the current round
+        Escrow escrow;
     }
 
     // Saving Circle Setup Variables
@@ -119,14 +119,15 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         participantAddresses.push(_host);
         possibleWinnerAddresses.push(_host);
 
-        // escrow
-        // Escrow escrow = new Escrow{value: msg.value}(host, msg.sender, depositFee);
+        // escrow - TODO: msg.value is in ETH => needs to be in DAI
+        Escrow escrow = new Escrow{value: msg.value}(host, msg.sender, depositFee);
         participants[_host] = Participant(
             _host,
             msg.value,
             true, //set isActive = true
             0,
-            false
+            false,
+            escrow
         );
 
         totalDepositFeesSum += depositFee;        
@@ -154,14 +155,15 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         possibleWinnerAddresses.push(msg.sender);
 
         // escrow
-        // Escrow escrow = new Escrow(host, msg.sender, depositFee);
+        Escrow escrow = new Escrow(host, msg.sender, depositFee);
 
         participants[msg.sender] = Participant(
             msg.sender,
             msg.value,
             true, // set isActive = true
             0,
-            false
+            false,
+            escrow
         ); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
         totalDepositFeesSum += depositFee; // keeping track of all deposits paid so far
 
@@ -305,18 +307,18 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             possibleWinnerAddresses.length == 0 && round == participantCounter,
             "Not everyone has been paid out so saving circle cannot be completed."
         );
-        // payOutDeposit(participantAddresses);
+        payOutDeposit(participantAddresses);
         emit CompleteCircle(address(this), startTime, block.timestamp);
     }
 
     /*
         withdraw deposit and earned interest back to participant
     */
-    // function payOutDeposit(address[] memory _validParticipants) internal {
-    //     for (uint8 i = 0; i < _validParticipants.length; i++) {
-    //         participants[_validParticipants[i]].escrow.approve();
-    //     }
-    // }
+    function payOutDeposit(address[] memory _validParticipants) internal {
+        for (uint8 i = 0; i < _validParticipants.length; i++) {
+            participants[_validParticipants[i]].escrow.approve();
+        }
+    }
 
     /* 
         Chainlink VRF Helper Functions 
@@ -378,7 +380,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             }
         }
 
-        // payOutDeposit(paid);
+        payOutDeposit(paid);
 
         // only pay those who have been paying
         for (uint8 i = 0; i < paid.length; i++) {
