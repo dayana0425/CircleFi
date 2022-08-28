@@ -11,7 +11,7 @@ Alice  | *** | ***
 
 __Project Description__
 
-__How it's Made__
+__How It's Made__
 
 __Technologies Used__
 
