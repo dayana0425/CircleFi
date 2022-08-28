@@ -2,8 +2,8 @@ import { useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import Dashboard from "../../components/Dashboard";
-import EventCard from "../../components/EventCard";
+import Dashboard from "../components/Dashboard";
+import EventCard from "../components/EventCard";
 
 const MY_UPCOMING_EVENTS = gql`
   query Events($eventOwner: String, $currentTimestamp: String) {
@@ -47,34 +47,35 @@ export default function MyUpcomingEvents() {
     );
 
   return (
-    <Dashboard page="events" isUpcoming={true}>
-      {account ? (
-        <div>
-          {data && data.events.length == 0 && <p>No circles found</p>}
-          {data && data.events.length > 0 && (
-            <ul
-              role="list"
-              className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
-            >
-              {data.events.map((event) => (
-                <li key={event.id}>
-                  <EventCard
-                    id={event.id}
-                    name={event.name}
-                    eventTimestamp={event.eventTimestamp}
-                    imageURL={event.imageURL}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center py-8">
-          <p className="mb-4">Please connect your wallet to view your events</p>
-          <ConnectButton />
-        </div>
+    // <Dashboard page="events" isUpcoming={true}>
+    <div className="flex flex-wrap py-8">
+      <div className="sm:w-10/12 sm:pl-8 mx-8">
+        <h1 className="text-2xl tracking-tight font-extrabold text-gray-900 sm:text-3xl md:text-4xl mb-4 border-b pb-4 border-gray-200">
+          All Circles
+        </h1>
+      </div>
+
+      <div className="px-16">
+        {data && data.events.length == 0 && <p>No circles found</p>}
+      </div>
+      {data && data.events.length > 0 && (
+        <ul
+          role="list"
+          className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+        >
+          {data.events.map((event) => (
+            <li key={event.id}>
+              <EventCard
+                id={event.id}
+                name={event.name}
+                eventTimestamp={event.eventTimestamp}
+                imageURL={event.imageURL}
+              />
+            </li>
+          ))}
+        </ul>
       )}
-    </Dashboard>
+    </div>
+    // </Dashboard>
   );
 }

@@ -29,14 +29,14 @@ export default function Dashboard({ page, isUpcoming, children }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Head>
-        <title>My Dashboard | web3rsvp</title>
+        <title>My Dashboard</title>
         <meta name="description" content="Manage your events and RSVPs" />
       </Head>
       <div className="flex flex-wrap py-8">
-        <DashboardNav page={page} />
+        {/* <DashboardNav page={page} /> */}
         <div className="sm:w-10/12 sm:pl-8">
           <h1 className="text-2xl tracking-tight font-extrabold text-gray-900 sm:text-3xl md:text-4xl mb-4">
-            {page == "events" ? "test" : "My Circles"}
+            {page == "events" ? "All Circles" : "My Circles"}
           </h1>
           <div className="sm:hidden">
             <label htmlFor="tabs" className="sr-only">
@@ -57,6 +57,7 @@ export default function Dashboard({ page, isUpcoming, children }) {
           <div className="hidden sm:block">
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              
                 {tabs.map((tab) => (
                   <a
                     key={tab.name}
