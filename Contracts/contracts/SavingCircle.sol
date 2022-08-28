@@ -5,6 +5,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Modifiers.sol";
 import "./Escrow.sol";
+import "hardhat/console.sol";
 
 contract SavingCircle is Modifiers, VRFConsumerBase {
     using SafeMath for uint256;
@@ -30,7 +31,6 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         bool isActive; // Defines if the user is participating in the current saving circle
         uint256 amountPaid; // What they paid so far for the current round
         bool fullyPaid; // If user paid the full amount for the current round
-        Escrow escrow;
     }
 
     // Saving Circle Setup Variables
@@ -94,7 +94,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         uint256 _groupSize,
         uint256 _payTime,
         address _host
-    ) payable VRFConsumerBase(vrf_cordinator_goerli, link_token_addr_goerli) {
+    ) VRFConsumerBase(vrf_cordinator_goerli, link_token_addr_goerli) payable {
         require(_host != address(0), "Host's address cannot be zero");
         require(
             _groupSize > 1 && _groupSize <= 12,
@@ -105,6 +105,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             "Saving Amount cannot be less than 0.001 ETH"
         );
         require(_payTime >= 1, "Pay Time cannot be less than a day.");
+
         // saving circle setup
         saveAmount = _saveAmountPerRound;
         depositFee = _saveAmountPerRound;
@@ -119,17 +120,15 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         possibleWinnerAddresses.push(msg.sender);
 
         // escrow
-        Escrow escrow = new Escrow(host, msg.sender, depositFee);
+        // Escrow escrow = new Escrow{value: msg.value}(host, msg.sender, depositFee);
         participants[msg.sender] = Participant(
             msg.sender,
             msg.value,
             false,
             0,
-            false,
-            escrow
+            false
         );
-        totalDepositFeesSum += depositFee;
-
+        totalDepositFeesSum += depositFee;        
         emit PaidDeposit(msg.sender, true);
         emit RegisterUser(msg.sender);
         emit SavingCircleEstablished(saveAmount, groupSize);
@@ -154,15 +153,14 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         possibleWinnerAddresses.push(msg.sender);
 
         // escrow
-        Escrow escrow = new Escrow(host, msg.sender, depositFee);
+        // Escrow escrow = new Escrow(host, msg.sender, depositFee);
 
         participants[msg.sender] = Participant(
             msg.sender,
             msg.value,
             false,
             0,
-            false,
-            escrow
+            false
         ); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
         totalDepositFeesSum += depositFee; // keeping track of all deposits paid so far
 
@@ -305,18 +303,18 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             possibleWinnerAddresses.length == 0 && round == participantCounter,
             "Not everyone has been paid out so saving circle cannot be completed."
         );
-        payOutDeposit(participantAddresses);
+        // payOutDeposit(participantAddresses);
         emit CompleteCircle(address(this), startTime, block.timestamp);
     }
 
     /*
         withdraw deposit and earned interest back to participant
     */
-    function payOutDeposit(address[] memory _validParticipants) internal {
-        for (uint8 i = 0; i < _validParticipants.length; i++) {
-            participants[_validParticipants[i]].escrow.approve();
-        }
-    }
+    // function payOutDeposit(address[] memory _validParticipants) internal {
+    //     for (uint8 i = 0; i < _validParticipants.length; i++) {
+    //         participants[_validParticipants[i]].escrow.approve();
+    //     }
+    // }
 
     /* 
         Chainlink VRF Helper Functions 
@@ -378,7 +376,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             }
         }
 
-        payOutDeposit(paid);
+        // payOutDeposit(paid);
 
         // only pay those who have been paying
         for (uint8 i = 0; i < paid.length; i++) {

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.4.1",
+    "@nomiclabs/buidler": "^1.4.8",
     "@openzeppelin/contracts": "^4.7.3",
     "chai": "^4.3.6",
     "hardhat": "^2.9.3"

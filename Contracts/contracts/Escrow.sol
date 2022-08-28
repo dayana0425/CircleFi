@@ -8,7 +8,7 @@ contract Escrow {
     address arbiter;
     address depositor;
     address beneficiary;
-    uint initialDeposit;
+    uint256 initialDeposit;
 
     // the mainnet AAVE v2 lending pool
     ILendingPool pool = ILendingPool(0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9);
@@ -31,7 +31,7 @@ contract Escrow {
     function approve() external {
         require(msg.sender == arbiter);
 
-        uint balance = aDai.balanceOf(address(this));
+        uint256 balance = aDai.balanceOf(address(this));
         
         pool.withdraw(address(dai), initialDeposit, beneficiary);
         
