@@ -9,10 +9,9 @@ import "@openzeppelin/contracts/access/IAccessControl.sol";
 contract Main is AccessControl {
     address public devFund = 0x4bFaF8ff960622b702e653C18b3bF747Abab4368;
     uint256 public fee = 5;
-    IAccessControl public Iblx;
-    BLXToken public blx;
+    // IAccessControl public Iblx;
 
-    event RoundCreated(SavingGroups childRound);
+    // event RoundCreated(SavingGroups childRound);
 
     constructor() public {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -23,13 +22,10 @@ contract Main is AccessControl {
         uint256 _saving,
         uint256 _groupSize,
         uint256 _adminFee,
-        uint256 _payTime,
-        ERC20 _token,
-        address _blxaddr
+        uint256 _payTime
     ) external payable returns (address) {
-        Iblx = IAccessControl(_blxaddr);
-        blx = BLXToken(_blxaddr);
-        SavingGroups newRound = new SavingGroups(
+        // Iblx = IAccessControl(_blxaddr);
+        /* SavingGroups newRound = new SavingGroups(
             _warranty,
             _saving,
             _groupSize,
@@ -45,8 +41,8 @@ contract Main is AccessControl {
             0x0000000000000000000000000000000000000000004d494e5445525f524f4c45,
             address(newRound)
         ); //minter 0x0000000000000000000000000000000000000000004d494e5445525f524f4c45
-        emit RoundCreated(newRound);
-        return address(newRound);
+        emit RoundCreated(newRound); */
+        return address(msg.sender);
     }
 
     function setDevFundAddress(address _devFund)

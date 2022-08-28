@@ -5,8 +5,15 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy-main": "hardhat run scripts/deploy-main.ts",
+    "deploy-saving-circle": "ts-node ./scripts/deploy-saving-circle.ts 0.1 4 1 0xC0c630f5c9A78A75a92617852AD0F4E80BF252Cf"
+  },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.5.0",
+    "@chainlink/contracts": "^0.4.1",
+    "@openzeppelin/contracts": "^4.7.3",
     "chai": "^4.3.6",
     "hardhat": "^2.9.3"
   },
@@ -18,8 +25,10 @@
     "@typechain/ethers-v5": "^7.0.1",
     "@typechain/hardhat": "^2.3.0",
     "@types/chai": "^4.2.21",
+    "@types/mime": "^3.0.1",
     "@types/mocha": "^9.0.0",
     "@types/node": "^12.0.0",
+    "@types/node-fetch": "^2.6.2",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
     "dotenv": "^10.0.0",
@@ -33,6 +42,7 @@
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0",
     "hardhat-gas-reporter": "^1.0.4",
+    "mime": "^3.0.0",
     "prettier": "^2.3.2",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "solhint": "^3.3.6",
