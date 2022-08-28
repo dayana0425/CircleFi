@@ -20,14 +20,15 @@ contract Main is AccessControl {
     function createSavingCircle (
         uint256 _saveAmountPerRound, 
         uint256 _groupSize, 
-        uint256 _payTime) 
-        external payable returns(address) {
-            SavingCircle newSavingCircle = new SavingCircle (  
-                                        _saveAmountPerRound, 
-                                        _groupSize,
-                                        _payTime,
-                                        msg.sender // Host of Saving Circle
-                                    );
+        uint256 _payTime
+    ) external payable returns(address) {
+        require(msg.value > 0, "No ETH sent");
+        SavingCircle newSavingCircle = (new SavingCircle){value: msg.value}(  
+                                    _saveAmountPerRound, 
+                                    _groupSize,
+                                    _payTime,
+                                    msg.sender // Host of Saving Circle
+                                );
         emit SavingCircleCreated(newSavingCircle);
         return address(newSavingCircle);
     }
