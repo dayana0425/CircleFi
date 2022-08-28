@@ -1,31 +1,22 @@
-import abiJSON from "../utils/Web3RSVP.json";
+import abiJSON from "../utils/Main.json";
 import { ethers } from "ethers";
 
 function connectContract() {
-    const contractAddress = "0x1ce25B0230331FB8cB9438124343B4392fF55A37";
-    const contractABI = abiJSON.abi;
-    let rsvpContract;
-    try {
-        const { ethereum } = window;
-  
-        if (ethereum.chainId === "0x13881") {
-          //checking for eth object in the window, see if they have wallet connected to Mumbai network
-          const provider = new ethers.providers.Web3Provider(ethereum);
-          const signer = provider.getSigner();
-          console.log("contractABI", contractABI);
-          rsvpContract = new ethers.Contract(
-            contractAddress,
-            contractABI,
-            signer
-          ); // instantiating new connection to the contract
-        } else {
-          throw new Error('Please connect to the Polygon Mumbai network.')
-        }
-      } catch (error) {
-        console.log("ERROR:", error);
-      }
-      return rsvpContract;
+  const contractAddress = "0xa3eC5F9725836D8ed92d420aBf31938969aF97C8";
+  const contractABI = abiJSON.abi;
+  let mainContract;
+  try {
+    const { ethereum } = window;
+
+    //checking for eth object in the window, see if they have wallet connected to Mumbai network
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const signer = provider.getSigner();
+    mainContract = new ethers.Contract(contractAddress, contractABI, signer); // instantiating new connection to the contract
+  } catch (error) {
+    console.log("ERROR:", error);
   }
-  
-  export default connectContract;
-  
+  console.log("success");
+  return mainContract;
+}
+
+export default connectContract;
