@@ -6,7 +6,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import Alert from "../components/Alert";
 import connectContract from "../utils/connectContract";
-import createCircle from "../utils/createCircle";
 import getRandomImage from "../utils/getRandomImage";
 
 export default function CreateEvent() {
@@ -39,26 +38,26 @@ export default function CreateEvent() {
     console.log(body);
 
     try {
-      // const response = await fetch("/api/store-event-data", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(body),
-      // });
-      // if (response.status !== 200) {
-      //   alert("Oops! Something went wrong. Please refresh and try again.");
-      // } else {
-      //   console.log("Form successfully submitted!");
-      //   let responseJSON = await response.json();
-      //   await createEvent(responseJSON.cid);
-      // }
+      const response = await fetch("/api/store-event-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "token":"test" },
+        body: JSON.stringify(body),
+      });
+      if (response.status !== 200) {
+        alert("Oops! Something went wrong. Please refresh and try again.");
+      } else {
+        console.log("Form successfully submitted!");
+        let responseJSON = await response.json();
+        await createEvent(responseJSON.cid);
+      }
       // check response, if success is false, dont take them to success page
 
-      let deposit = ethers.utils.parseEther(contributionAmount);
-      console.log(
-        "🚀 ~ file: create-circle.js ~ line 55 ~ handleSubmit ~ deposit",
-        deposit
-      );
-      await createCircle(deposit, maxCapacity, payTime);
+      // let deposit = ethers.utils.parseEther(contributionAmount);
+      // console.log(
+      //   "🚀 ~ file: create-circle.js ~ line 55 ~ handleSubmit ~ deposit",
+      //   deposit
+      // );
+      // await createCircle(deposit, maxCapacity, payTime);
     } catch (error) {
       alert(
         `Oops! Something went wrong. Please refresh and try again. Error ${error}`
