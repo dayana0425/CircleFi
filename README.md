@@ -19,8 +19,6 @@ With CircleFi, we believe we can empower the 2 billion individuals currently wor
 
 __How It Works__
 
-__How It's Made__
-
-__Technologies Used__
+__How It's Made / Technologies Used__
 
 __Links__
