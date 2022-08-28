@@ -5,9 +5,9 @@ __Team Members__
 First Name | Last Name | Discord
 ------------ | ------------- | -------------
 Daiana | Bilbao | hello_dayana#4030
-Kevin | Le | *** 
-Christina | Polyukh | *** 
-Alice  | He | *** 
+Kevin | Le | water1925#7425 
+Christina | Polyukh | cpolyukh#5660 
+Alice  | He | AliceNoWonderLand#9140 
 
 __Project Description__
 
