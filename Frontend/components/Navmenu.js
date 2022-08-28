@@ -38,6 +38,19 @@ export default function Navmenu({ account, disconnect }) {
             <Menu.Item>
               {({ account }) => (
                 <a
+                  href={`/all-circles`}
+                  className={joinClassNames(
+                    account ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                    "block px-4 py-2 text-sm"
+                  )}
+                >
+                  All Circles
+                </a>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ account }) => (
+                <a
                   href={`/hosting-circles/upcoming`}
                   className={joinClassNames(
                     account ? "bg-gray-100 text-gray-900" : "text-gray-700",

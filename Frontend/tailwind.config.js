@@ -9,6 +9,9 @@ module.exports = {
       fontFamily: {
         serif: ["Space Grotesk", ...defaultTheme.fontFamily.serif],
       },
+      animation: {
+        "spin-slow": "spin 30s linear infinite"
+      },
     },
   },
   variants: {},

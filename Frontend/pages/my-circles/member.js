@@ -47,7 +47,7 @@ export default function MyUpcomingRSVPs() {
     <Dashboard page="rsvps" isUpcoming={true}>
       {account ? (
         <div>
-          {data && !data.account && <p>No upcoming RSVPs found</p>}
+          {data && !data.account && <p>You are not a member of any circles</p>}
           {data && data.account && (
             <ul
               role="list"

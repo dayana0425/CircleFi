@@ -24,3 +24,61 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.loggedin-buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.loggedout-buttons{
+  display:flex;
+}
+.loggedout-buttons a{
+  background-color:white;
+}
+
+.loggedin-buttons a{
+  background-color:white;
+}
+
+.circlefi-logo{
+  left:-142px !important;
+}
+.circlefi-logo:hover{
+  cursor:pointer;
+}
+
+.hero-bg{
+  width: 100% !important;
+  position:absolute;
+}
+
+.landing-section{
+  background: url("../public/images/hero-bg.jpg");
+  background-size:cover;
+  background-position: right;
+  height: 600px;
+}
+
+/* .spinning-circle{
+  height:360px;
+  width:360px;
+} */
+
+@-moz-keyframes spin {
+    from { -moz-transform: rotate(0deg); }
+    to { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
+
+.all-circles-dashboard nav{
+  display:none;
+}
