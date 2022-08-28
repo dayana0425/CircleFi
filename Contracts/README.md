@@ -11,6 +11,7 @@ yarn test
 yarn compile
 yarn deploy-main
 yarn deploy-saving-circle
+yarn test-saving-circle
 ```
 
 # Main Contract Address:
