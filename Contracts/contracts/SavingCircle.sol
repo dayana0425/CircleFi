@@ -163,7 +163,6 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             0,
             false
         ); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
-        console.log("RGISTERED USER: ", participants[msg.sender].isActive, participants[msg.sender].userAddr);
         totalDepositFeesSum += depositFee; // keeping track of all deposits paid so far
 
         //TODO: Emit Event for when all spots are filled

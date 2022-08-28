@@ -125,9 +125,21 @@ console.log("Contract Balance After Address2 Pays (ETH): ", ethers.utils.formatE
   console.log("Contract Balance After Address3 Pays (ETH): ", ethers.utils.formatEther(contractBalance));
   console.log("EVERYONE PAID FOR FIRST ROUND. HOST CAN END & START NEXT ROUND.");
 
-  //
 
-};
+  // testing extendDeadline --- needs to be emergency stage
+//   await ethers.provider.send("evm_increaseTime", [15778800000000]);
+//   txn = await savingCircleContract.connect(host).endRoundAndStartNextRound();
+//   wait = await txn.wait();
+//   let timeToPay = await savingCircleContract.payTime();
+//   console.log("payTime After: ", timeToPay);
+//   txn = await savingCircleContract.connect(host).extendDeadline();
+//   wait = await txn.wait();
+//   if(wait.events) {
+//     console.log("EXTEND DEADLINE:", wait.events[0].args);
+//   }
+//   timeToPay = await savingCircleContract.payTime();
+//   console.log("payTime After: ", timeToPay);
+}
 
 const runMain = async () => {
   try {
