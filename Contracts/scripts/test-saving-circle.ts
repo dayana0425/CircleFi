@@ -70,10 +70,62 @@ const main = async () => {
   }
   contractBalance = await savingCircleContract.provider.getBalance(savingCircleContract.address);
   console.log("Contract Balance After Address3 Registers (ETH): ", ethers.utils.formatEther(contractBalance));
+  console.log("ALL DEPOSITS PAID, ROUNDS CAN BEGIN");
 
   // participant counter
   let participantCounter = await savingCircleContract.participantCounter();
   console.log("Participant Counter: ", participantCounter);
+
+  // start round
+  txn = await savingCircleContract.connect(host).startFirstRound();
+  wait = await txn.wait();
+  if(wait.events) {
+    console.log("START FIRST ROUND:", wait.events[0].args);
+  }
+
+  // get stage
+  let stage = await savingCircleContract.stage();
+  console.log("Saving Circle Stage: ", stage);
+  console.log("FIRST ROUND STARTED");
+
+  // make payment for first round - host
+  txn = await savingCircleContract.connect(host).makePayment({value: saveAmountPerRound});
+  wait = await txn.wait();
+  if(wait.events) {
+    console.log("PAID FOR ROUND:", wait.events[0].args);
+  }
+  contractBalance = await savingCircleContract.provider.getBalance(savingCircleContract.address);
+  console.log("Contract Balance After Host Pays (ETH): ", ethers.utils.formatEther(contractBalance));
+
+  // make payment for first round - address1
+  txn = await savingCircleContract.connect(address1).makePayment({value: saveAmountPerRound});
+  wait = await txn.wait();
+  if(wait.events) {
+    console.log("PAID FOR ROUND:", wait.events[0].args);
+  }
+  contractBalance = await savingCircleContract.provider.getBalance(savingCircleContract.address);
+  console.log("Contract Balance After Address1 Pays (ETH): ", ethers.utils.formatEther(contractBalance));
+
+// make payment for first round - address2
+txn = await savingCircleContract.connect(address2).makePayment({value: saveAmountPerRound});
+wait = await txn.wait();
+if(wait.events) {
+    console.log("PAID FOR ROUND:", wait.events[0].args);
+}
+contractBalance = await savingCircleContract.provider.getBalance(savingCircleContract.address);
+console.log("Contract Balance After Address2 Pays (ETH): ", ethers.utils.formatEther(contractBalance));
+
+  // make payment for first round - address3
+  txn = await savingCircleContract.connect(address3).makePayment({value: saveAmountPerRound});
+  wait = await txn.wait();
+  if(wait.events) {
+    console.log("PAID FOR ROUND:", wait.events[0].args);
+  }
+  contractBalance = await savingCircleContract.provider.getBalance(savingCircleContract.address);
+  console.log("Contract Balance After Address3 Pays (ETH): ", ethers.utils.formatEther(contractBalance));
+  console.log("EVERYONE PAID FOR FIRST ROUND. HOST CAN END & START NEXT ROUND.");
+
+  //
 
 };
 

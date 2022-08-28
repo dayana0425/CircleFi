@@ -116,21 +116,22 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
 
         // register host as participant
         participantCounter++;
-        participantAddresses.push(msg.sender);
-        possibleWinnerAddresses.push(msg.sender);
+        participantAddresses.push(_host);
+        possibleWinnerAddresses.push(_host);
 
         // escrow
         // Escrow escrow = new Escrow{value: msg.value}(host, msg.sender, depositFee);
-        participants[msg.sender] = Participant(
-            msg.sender,
+        participants[_host] = Participant(
+            _host,
             msg.value,
-            false,
+            true, //set isActive = true
             0,
             false
         );
+
         totalDepositFeesSum += depositFee;        
-        emit PaidDeposit(msg.sender, true);
-        emit RegisterUser(msg.sender);
+        emit PaidDeposit(_host, true);
+        emit RegisterUser(_host);
         emit SavingCircleEstablished(saveAmount, groupSize);
     }
 
@@ -158,12 +159,14 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         participants[msg.sender] = Participant(
             msg.sender,
             msg.value,
-            false,
+            true, // set isActive = true
             0,
             false
         ); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
+        console.log("RGISTERED USER: ", participants[msg.sender].isActive, participants[msg.sender].userAddr);
         totalDepositFeesSum += depositFee; // keeping track of all deposits paid so far
 
+        //TODO: Emit Event for when all spots are filled
         emit PaidDeposit(msg.sender, true);
         emit RegisterUser(msg.sender);
     }
