@@ -94,7 +94,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         uint256 _groupSize,
         uint256 _payTime,
         address _host
-    ) payable VRFConsumerBase(vrf_cordinator_goerli, link_token_addr_goerli) {
+    ) VRFConsumerBase(vrf_cordinator_goerli, link_token_addr_goerli) payable {
         require(_host != address(0), "Host's address cannot be zero");
         require(
             _groupSize > 1 && _groupSize <= 12,
@@ -105,6 +105,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             "Saving Amount cannot be less than 0.001 ETH"
         );
         require(_payTime >= 1, "Pay Time cannot be less than a day.");
+
         // saving circle setup
         saveAmount = _saveAmountPerRound;
         depositFee = _saveAmountPerRound;
@@ -115,23 +116,23 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
 
         // register host as participant
         participantCounter++;
-        participantAddresses.push(msg.sender);
-        possibleWinnerAddresses.push(msg.sender);
+        participantAddresses.push(_host);
+        possibleWinnerAddresses.push(_host);
 
-        // escrow
-        Escrow escrow = new Escrow(host, msg.sender, depositFee);
-        participants[msg.sender] = Participant(
-            msg.sender,
+        // escrow - TODO: msg.value is in ETH => needs to be in DAI
+        Escrow escrow = new Escrow{value: msg.value}(host, msg.sender, depositFee);
+        participants[_host] = Participant(
+            _host,
             msg.value,
-            false,
+            true, //set isActive = true
             0,
             false,
             escrow
         );
-        totalDepositFeesSum += depositFee;
 
-        emit PaidDeposit(msg.sender, true);
-        emit RegisterUser(msg.sender);
+        totalDepositFeesSum += depositFee;        
+        emit PaidDeposit(_host, true);
+        emit RegisterUser(_host);
         emit SavingCircleEstablished(saveAmount, groupSize);
     }
 
@@ -159,13 +160,14 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         participants[msg.sender] = Participant(
             msg.sender,
             msg.value,
-            false,
+            true, // set isActive = true
             0,
             false,
             escrow
         ); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
         totalDepositFeesSum += depositFee; // keeping track of all deposits paid so far
 
+        //TODO: Emit Event for when all spots are filled
         emit PaidDeposit(msg.sender, true);
         emit RegisterUser(msg.sender);
     }
