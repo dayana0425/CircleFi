@@ -2,12 +2,12 @@
 ## <a name="english"> CircleFi ⭕️ </a>
 
 __Team Members__
-First Name | Last Name | Github username 
+First Name | Last Name | Discord
 ------------ | ------------- | -------------
-Daiana | Bilbao | dayana0425
-Kevin | *** | *** 
-Christina  | *** | *** 
-Alice  | *** | *** 
+Daiana | Bilbao | hello_dayana#4030
+Kevin | Le | *** 
+Christina | Polyukh | *** 
+Alice  | He | *** 
 
 __Project Description__
 
