@@ -11,6 +11,10 @@ Alice  | He | AliceNoWonderLand#9140
 
 __Project Description__
 
+CircleFi is a DeFi application to help users set up their own rotating savings and credit associations with their friends, family, and coworkers using $ETH cryptocurrency & $DAI stablecoin. Saving Circles can be used for a variety of reasons including to pay for a vacation, a flat tire replacement to other emergency or non-emergency expenses. It’s a popular method of saving because the money is often interest-free and you can get a lot of money relatively quickly. We implemented CircleFi to receive initial fee deposits in $DAI to then invest into AAVE v2 lending pool through the Escrow smart contract. Paying the initial fee deposit is what registers and secures a participant’s spot in a saving circle. Next, we start the rounds where participants are committed to making monthly, weekly, or bi-weekly payments. We accept payments for rounds in $ETH. Our SavingCircle smart contract handles receiving payments, tracking payments, and paying out after each round. We use Chainlink’s VRF to randomly select a participant in the circle to pay out to. The saving circle finishes once every participant has been paid out. Once completed, we distributed the initial deposit fee + interest earned back to everyone! Lastly, we mint dynamic NFT to each participant for successfully participating in a saving circle to build their financial reputation! 
+
+__Project Context__
+
 The informal economy employs about 2 billion women and men and employs 60% of the global workforce. The informal economy exists in all countries, regardless of socioeconomic development level, but statistics show that it is more prevalent in developing countries, with percentages ranging from 67% to 90% ([International Labour Office](https://www.ilo.org/wcmsp5/groups/public/---dgreports/---dcomm/documents/publication/wcms_626831.pdf)).
 
 Considering the high statistics of individuals working globally in the informal economy, there is an urgent need for financial services to help individuals combat this informality in order to promote financial inclusion and enable wealth building.
