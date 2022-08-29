@@ -31,8 +31,6 @@ contract Escrow {
 
     function approve() external {
         require(msg.sender == arbiter);
-
-        uint balance = aDai.balanceOf(address(this));
         
         pool.withdraw(address(dai), initialDeposit, beneficiary);
         
