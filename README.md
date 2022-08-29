@@ -23,7 +23,7 @@ To do this, we chose to implement ROSCAs (Rotating savings and credit associatio
 
 _What's a ROSCA?_
 
-A rotating savings and credit association (ROSCA) is a combo of peer-to-peer lending and peer-to-peer banking where participants agree to meet regularly for a set period of time to save and borrow money together. 
+A rotating savings and credit association (ROSCA) is a combo of peer-to-peer lending and peer-to-peer banking where participants agree to meet regularly for a set period of time to save and borrow money together. Why save alone when you can save together?
 
 _Example_
 
