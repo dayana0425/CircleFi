@@ -57,7 +57,7 @@ export default function Navmenu({ account, disconnect }) {
                     "block px-4 py-2 text-sm"
                   )}
                 >
-                  test___Host Circles
+                  {/* test___Host Circles */}
                 </a>
               )}
             </Menu.Item>

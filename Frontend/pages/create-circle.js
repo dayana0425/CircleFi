@@ -206,7 +206,7 @@ export default function CreateEvent() {
                     className="block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
                     required
                     value={circleName}
-                    onChange={(e) => setEventName(e.target.value)}
+                    onChange={(e) => setCircleName(e.target.value)}
                   />
                 </div>
               </div>
@@ -278,8 +278,7 @@ export default function CreateEvent() {
                 >
                   Contribution Amount
                   <p className="mt-1 max-w-2xl text-sm text-gray-400">
-                    Require a refundable deposit (in MATIC) to reserve one spot
-                    at your event
+                    How much each member contributes to the savings circle (in ETH)
                   </p>
                 </label>
                 <div className="mt-1 sm:mt-0 sm:col-span-2">
