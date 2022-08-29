@@ -48,6 +48,7 @@ export default function CreateEvent() {
       } else {
         console.log("Form successfully submitted!");
         let responseJSON = await response.json();
+        console.log(responseJSON);
         await createEvent(responseJSON.cid);
       }
       // check response, if success is false, dont take them to success page
@@ -91,7 +92,7 @@ export default function CreateEvent() {
 
         setLoading(true);
         console.log("Minting...", txn.hash);
-        let wait = await txn.wait();
+        let wait = await savingCircleAddress.wait();
         console.log("Minted -- ", txn.hash);
 
         setEventID(wait.events[0].args[0]);
