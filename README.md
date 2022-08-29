@@ -32,3 +32,7 @@ Let's say a group of 5 people would like to save $10,000 USD each. They can do s
 __How It's Made / Technologies Used__
 
 __Links__
+
+[Video Demo](https://www.google.com/)
+[Presentation Slides](https://www.google.com/)
+[Live Demo](https://www.google.com/)
