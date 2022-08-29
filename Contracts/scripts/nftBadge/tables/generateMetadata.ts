@@ -1,6 +1,6 @@
 import { IMAGE_MAP, MetadataResponse, Level, BEGINNER_DATA, INTERMEDIATE_DATA, EXPERT_DATA } from "../../types/metadataTypes";
 
-const defaultURI = "https://ipfs.io/ipfs/bafkreih4wcbrrauh5qpyhijmgp5mbpvi4wqoqmdxzhmzs4ukh65mo5i3dq";
+const defaultURI = "https://ipfs.io/ipfs/bafkreidrajeqz2ja2mrjkpyqccysskeyw27nkketa6n3pwjsdp7kxds4x4";
 
 export function generateNFTMetadata(numCompletedCircles: number, nftId: number) {
     if (numCompletedCircles <= 0) {

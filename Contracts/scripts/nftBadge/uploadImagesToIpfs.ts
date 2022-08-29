@@ -46,7 +46,7 @@ export const IMAGE_NAMES: string[] = ["beginner", "intermediate", "expert", "pro
 async function processImages() {
     for (let i = 0; i < IMAGE_NAMES.length; i++) {
         const imageName: string = IMAGE_NAMES[i];
-        const imagePath = path.join(IMAGE_DIR, `${imageName}.jpeg`);
+        const imagePath = path.join(IMAGE_DIR, `${imageName}.png`);
         const imageCid = await uploadImageToIpfs(i, imagePath);
         
         console.log(`Image with name ${imageName} was uploaded to IPFS with CID ${imageCid}`);
