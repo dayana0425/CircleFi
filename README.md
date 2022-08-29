@@ -33,8 +33,6 @@ _Example_
 
 Let's say a group of 5 people would like to save $10,000 USD each. They can do so by deciding to contribute $2,000 USD each on a monthly basis. Every month, a participant of the group will recieve $10,000 USD. This is done until everyone in the group has recieved $10,000 USD which would be after 5 months. Imagine saving $10,000 USD in as little as a month and completely interest-free! 
 
-__How It's Made / Technologies Used__
-
 __Links__
 
 [CircleFi](https://www.youtube.com/watch?v=376d9SnTVFE)
