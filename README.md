@@ -21,13 +21,13 @@ __How It Works__
 
 To do this, we chose to implement ROSCAs (Rotating savings and credit association). Traditionally, this is an event that is done in person, but as the digital era has progressed, there is a need for people to be able to save without having to come together in person and instead be able to come together online. We can provide rewards, cross-border payments and help an anonymous address establish a trustful reputation with blockchain technology and cryptocurrencies.
 
-__What's a ROSCA?__
+_What's a ROSCA?_
 
 A rotating savings and credit association (ROSCA) is a combo of peer-to-peer lending and peer-to-peer banking where participants agree to meet regularly for a set period of time to save and borrow money together. 
 
 _Example_
 
-For example, let's say a group of 5 people would like to save $10,000 USD each. They can do so by deciding to contribute $2,000 USD each on a monthly basis. Every month, a participant of the group will recieve $10,000 USD. This is done until everyone in the group has recieved $10,000 USD which would be after 5 months. Imagine saving $10,000 USD in as little as a month and completely interest-free! 
+Let's say a group of 5 people would like to save $10,000 USD each. They can do so by deciding to contribute $2,000 USD each on a monthly basis. Every month, a participant of the group will recieve $10,000 USD. This is done until everyone in the group has recieved $10,000 USD which would be after 5 months. Imagine saving $10,000 USD in as little as a month and completely interest-free! 
 
 __How It's Made / Technologies Used__
 
