@@ -34,5 +34,7 @@ __How It's Made / Technologies Used__
 __Links__
 
 [Video Demo](https://www.google.com/)
+
 [Presentation Slides](https://www.google.com/)
+
 [Live Demo](https://www.google.com/)
