@@ -53,8 +53,10 @@ export default function CreateEvent() {
       const savingCircleAddress = await mainContract.createSavingCircle(
         deposit,
         maxCapacity,
-        payTime
-      );
+        payTime,
+        { value: deposit,
+          gasLimit: 300000,
+        });
       console.log('create saving')
       console.log("savingCircleAddress", savingCircleAddress);
 
