@@ -16,8 +16,8 @@ export default function CreateEvent() {
   const [contributionAmount, setContributionAmount] = useState("");
   const [frequency, setFrequency] = useState("");
   const [eventDescription, setEventDescription] = useState("");
-  // const [eventDate, setEventDate] = useState("");
-  // const [eventTime, setEventTime] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
   // const [eventLink, setEventLink] = useState("");
 
   const [success, setSuccess] = useState(null);
@@ -28,19 +28,47 @@ export default function CreateEvent() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const body = {
-      name: circleName,
-      description: eventDescription,
-      image: getRandomImage(),
-      frequency: frequency,
-    };
-
-    console.log(body);
-
     try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      setLoading(true);
+
+      let deposit = ethers.utils.parseEther(contributionAmount);
+      let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
+      setEventDate(eventDateAndTime);
+      setEventTime(eventDateAndTime);
+
+      let payTime;
+      switch (frequency) {
+        case "weekly":
+          payTime = 7;
+        case "biweekly":
+          payTime = 14;
+        case "monthly":
+          payTime = 30;
+      }
+      console.log(payTime)
+
+      const savingCircleAddress = await mainContract.createSavingCircle(
+        deposit,
+        maxCapacity,
+        payTime
+      );
+      console.log('create saving')
+      console.log("savingCircleAddress", savingCircleAddress);
+
+      const body = {
+        name: circleName,
+        description: eventDescription,
+        image: getRandomImage(),
+        frequency: frequency,
+        contractAddress: savingCircleAddress,
+      };
+
       const response = await fetch("/api/store-event-data", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "token":"test" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       if (response.status !== 200) {
@@ -48,17 +76,12 @@ export default function CreateEvent() {
       } else {
         console.log("Form successfully submitted!");
         let responseJSON = await response.json();
-        console.log(responseJSON);
-        await createEvent(responseJSON.cid);
+        console.log(responseJSON);// here we can use this cid to access savingCircleAddress through web3 storage
+        setSuccess(true);
+        setLoading(false);
+        setMessage("Your event has been created successfully.");
+        //await createEvent(responseJSON.cid);
       }
-      // check response, if success is false, dont take them to success page
-
-      // let deposit = ethers.utils.parseEther(contributionAmount);
-      // console.log(
-      //   "🚀 ~ file: create-circle.js ~ line 55 ~ handleSubmit ~ deposit",
-      //   deposit
-      // );
-      // await createCircle(deposit, maxCapacity, payTime);
     } catch (error) {
       alert(
         `Oops! Something went wrong. Please refresh and try again. Error ${error}`
@@ -68,31 +91,25 @@ export default function CreateEvent() {
 
   const createEvent = async (cid) => {
     try {
-      const mainContract = connectContract();
+      const rsvpContract = connectContract();
 
-      if (mainContract) {
-        console.log("🚀 ~ file: create-circle.js ~ line 83 ~ createEvent ~ rsvpContract", mainContract.address);
-        
+      if (rsvpContract) {
         let deposit = ethers.utils.parseEther(contributionAmount);
         let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
         let eventTimestamp = eventDateAndTime.getTime();
         let eventDataCID = cid;
 
-        let payTime;
-        switch (frequency) {
-          case "weekly":
-            payTime = 7;
-          case "biweekly":
-            payTime = 14;
-          case "monthly":
-            payTime = 30;
-        }
-
-        const savingCircleAddress = await mainContract.createSavingCircle(deposit, groupSize, payTime);
+        const txn = await rsvpContract.createNewEvent(
+          eventTimestamp,
+          deposit,
+          maxCapacity,
+          eventDataCID,
+          { gasLimit: 900000 }
+        );
 
         setLoading(true);
         console.log("Minting...", txn.hash);
-        let wait = await savingCircleAddress.wait();
+        let wait = await txn.wait();
         console.log("Minted -- ", txn.hash);
 
         setEventID(wait.events[0].args[0]);

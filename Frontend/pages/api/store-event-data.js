@@ -2,7 +2,6 @@ import { Web3Storage, File, getFilesFromPath } from "web3.storage";
 const { resolve } = require("path");
 
 export default async function handler(req, res) {
-  console.log('handerler')
   if (req.method === "POST") {
     return await storeEventData(req, res);
   } else {
@@ -48,6 +47,11 @@ async function makeFileObjects(body) {
   console.log(files);
   return files;
 }
+
+/*
+  you can create token from here: https://web3.storage/tokens/
+  then you can access the stored data
+*/
 
 function makeStorageClient() {
   return new Web3Storage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGU3MDBFNjM5N0VENDVjMGVBNDg1ZUQ4ODZmQTYwMDQ0NjFFMDg2ZmEiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjE3MjcxODk1NjUsIm5hbWUiOiJjaXJjbGUifQ.5yYen2VVoKN6g-EVdYR7y5R7kBRBgBlstnQr_Fi1WV4"});
