@@ -78,12 +78,12 @@ export default function Landing({ children }) {
           regular basis. A member is selected to receive the full amount, which continues on a rotating basis until every member has had a chance to receive the full amount. We at CircleFi have made a new twist to savings circles by allowing savers across the world to organize over the internet, while leveraging Web 3 blockchain technology to create a safer and more secure savings circle for the modern age.
         </div>
       </div>
-      <div className="my-12 mx-64">
+      {/* <div className="my-12 mx-64">
         <h1 className="text-3xl tracking-tight font-semibold text-gray-600">How CircleFi Works</h1>
         <div className="mt-4 text-m text-gray-600">
           Add a graphic here detailing how the savings circle works / how the blockchain stuff works
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

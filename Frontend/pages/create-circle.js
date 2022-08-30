@@ -16,8 +16,8 @@ export default function CreateEvent() {
   const [contributionAmount, setContributionAmount] = useState("");
   const [frequency, setFrequency] = useState("");
   const [eventDescription, setEventDescription] = useState("");
-  // const [eventDate, setEventDate] = useState("");
-  // const [eventTime, setEventTime] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
   // const [eventLink, setEventLink] = useState("");
 
   const [success, setSuccess] = useState(null);
@@ -28,14 +28,44 @@ export default function CreateEvent() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const body = {
-      name: circleName,
-      description: eventDescription,
-      link: eventLink,
-      image: getRandomImage(),
-    };
-
     try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      setLoading(true);
+
+      let deposit = ethers.utils.parseEther(contributionAmount);
+      let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
+      setEventDate(eventDateAndTime);
+      setEventTime(eventDateAndTime);
+
+      let payTime;
+      switch (frequency) {
+        case "weekly":
+          payTime = 7;
+        case "biweekly":
+          payTime = 14;
+        case "monthly":
+          payTime = 30;
+      }
+      console.log(payTime)
+
+      const savingCircleAddress = await mainContract.createSavingCircle(
+        deposit,
+        maxCapacity,
+        payTime
+      );
+      console.log('create saving')
+      console.log("savingCircleAddress", savingCircleAddress);
+
+      const body = {
+        name: circleName,
+        description: eventDescription,
+        image: getRandomImage(),
+        frequency: frequency,
+        contractAddress: savingCircleAddress,
+      };
+
       const response = await fetch("/api/store-event-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,9 +76,12 @@ export default function CreateEvent() {
       } else {
         console.log("Form successfully submitted!");
         let responseJSON = await response.json();
-        await createEvent(responseJSON.cid);
+        console.log(responseJSON);// here we can use this cid to access savingCircleAddress through web3 storage
+        setSuccess(true);
+        setLoading(false);
+        setMessage("Your event has been created successfully.");
+        //await createEvent(responseJSON.cid);
       }
-      // check response, if success is false, dont take them to success page
     } catch (error) {
       alert(
         `Oops! Something went wrong. Please refresh and try again. Error ${error}`
@@ -127,18 +160,14 @@ export default function CreateEvent() {
     return (
       <div>
         <div>
-          Each member will contribute {contributionAmount} ETH  per round
+          Each member will contribute {contributionAmount} ETH per round
         </div>
+        <div>Each round lasts for {weekAmt}</div>
         <div>
-          Each round lasts for {weekAmt}
+          Every round, 1 member will be randomly selected to receive the full
+          pool amount of {maxCapacity * contributionAmount} ETH
         </div>
-        <div>
-          Every round, 1 member will be randomly selected to receive the full pool amount{" "}
-          of {maxCapacity * contributionAmount} ETH
-        </div>
-        <div>
-          This goes on for {totalLength}
-        </div>
+        <div>This goes on for {totalLength}</div>
         <div>
           By the end, each member will have had a chance to win the full pool
         </div>
@@ -206,7 +235,7 @@ export default function CreateEvent() {
                     className="block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
                     required
                     value={circleName}
-                    onChange={(e) => setEventName(e.target.value)}
+                    onChange={(e) => setCircleName(e.target.value)}
                   />
                 </div>
               </div>
@@ -278,8 +307,7 @@ export default function CreateEvent() {
                 >
                   Contribution Amount
                   <p className="mt-1 max-w-2xl text-sm text-gray-400">
-                    Require a refundable deposit (in MATIC) to reserve one spot
-                    at your event
+                    How much each member contributes to the savings circle (in ETH)
                   </p>
                 </label>
                 <div className="mt-1 sm:mt-0 sm:col-span-2">
@@ -407,7 +435,9 @@ export default function CreateEvent() {
         )}
         {!account && (
           <section className="flex flex-col items-start py-8">
-            <p className="mb-4">Please connect your wallet to create circles.</p>
+            <p className="mb-4">
+              Please connect your wallet to create circles.
+            </p>
             <ConnectButton />
           </section>
         )}
