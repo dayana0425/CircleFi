@@ -2,10 +2,8 @@
 // If not, mint NFT 
 // If yes, update NFT metadata
 
-import { BigNumber, ethers } from "ethers";
 import "dotenv/config";
-import { setupProvider } from "../utils/providerUtils";
-import * as CircleNFTJson from "../../artifacts/contracts/CircleNFT.sol/CircleNFT.json";
+import { ethers } from "hardhat";
 import { CircleNFT } from "../../typechain";
 
 // This key is already public on Herong's Tutorial Examples - v1.03, by Dr. Herong Yang
@@ -16,33 +14,19 @@ const EXPOSED_KEY =
 const BACKUP_NFT_ADDRESS = "0xEf1F17E4e79a7c3Fa2f5B1a0823522505F839cA0";
 
 async function blah() {
-    const wallet =
-        process.env.MNEMONIC && process.env.MNEMONIC.length > 0
-            ? ethers.Wallet.fromMnemonic(process.env.MNEMONIC)
-            : new ethers.Wallet(process.env.PRIVATE_KEY ?? EXPOSED_KEY);
-    console.log(`Using address ${wallet.address}`);
-    const provider = setupProvider();
-    const signer = wallet.connect(provider);
-    const balanceBN = await signer.getBalance();
-    const balance = Number(ethers.utils.formatEther(balanceBN));
-    console.log(`Wallet balance ${balance}`);
-    if (balance < 0.01) {
-        throw new Error("Not enough ether");
-    }
+    // Get signer
+    const signer = (await ethers.getSigners())[0];
 
     // Finding relevant NFT smart contract
     const nftAddress = process.env.NFT_CONTRACT_ADDRESS ? process.env.NFT_CONTRACT_ADDRESS : BACKUP_NFT_ADDRESS;
-    // const nftAddress = "0x022e62b3aeD7dc93A1d33adCfF821E9816544E83";
-    console.log(`NFT address: ${nftAddress}`);
+    console.log(`Connecting to NFT smart contract at address: ${nftAddress}`);
+    const CircleNFTContract = await ethers.getContractFactory("CircleNFT");
+    const nftContract = await CircleNFTContract.attach(nftAddress) as CircleNFT;
+    console.log(`Successfully identified CircleNFT at address ${nftAddress}`);
 
-    const nftContract: CircleNFT = new ethers.Contract(
-        nftAddress,
-        CircleNFTJson.abi,
-        signer
-    ) as CircleNFT;
     console.log("Got here");
 
-    const tokenURI = await nftContract.tokenURI(0);
+    const tokenURI = await nftContract.tokenURI(1);
     console.log(`Token URI: ${tokenURI}`);
 
     /*     // const userNFTBalance = await nftContract.balanceOf(wallet.address);

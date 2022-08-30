@@ -308,6 +308,9 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             "Not everyone has been paid out so saving circle cannot be completed."
         );
         payOutDeposit(participantAddresses);
+
+        // TODO update Tableland tables and mint NFTs for users that need them
+
         emit CompleteCircle(address(this), startTime, block.timestamp);
     }
 

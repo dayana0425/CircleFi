@@ -5,14 +5,14 @@ import { MetadataResponse } from "../../types/metadataTypes";
 import { connect } from "@tableland/sdk";
 import { setupProvider } from "../../utils/providerUtils";
 import "dotenv/config";
+import { ethers } from "hardhat";
 
 const CHAIN = "ethereum-goerli";
 
 // 1. Push new statements to table
-export async function pushUserToTable(signer: Wallet, completedCircles: number, nftId: number, mainTable: string, attributesTable: string) {
-    const network = process.env.NETWORK;
-    console.log(`\nDeploying to network '${network}' with account ${signer.address}`);
+export async function pushUserToTable(completedCircles: number, nftId: number, mainTable: string, attributesTable: string) {
     // Connect to Tableland
+    const [signer] = await ethers.getSigners();
     const tableland = await connect({ signer, chain: CHAIN });
 
     // Prepare the metadata (handles all of the IPFS-related actions & JSON parsing).
@@ -42,6 +42,7 @@ export async function pushUserToTable(signer: Wallet, completedCircles: number, 
         main: mainTableStatement,
         attributes: attributesTableStatements,
     };
+    
     // Insert metadata into both the 'main' and 'attributes' tables, before smart contract deployment
     console.log(`\nWriting metadata to tables...`)
     // Call `write` with both INSERT statements; optionally, log it to show some SQL queries
@@ -65,8 +66,8 @@ export async function pushUserToTable(signer: Wallet, completedCircles: number, 
     }
 }
 
-export async function incrementRoundsForExistingUser(signer: Wallet, nftId: number, mainTableName: string, attributesTableName: string) {
-    const network = process.env.NETWORK;
+export async function incrementRoundsForExistingUser(nftId: number, mainTableName: string, attributesTableName: string) {
+    const [signer] = await ethers.getSigners();
     const tableland = await connect({ signer, chain: CHAIN });
 
     // Get info for all tables associated with your account
@@ -143,7 +144,7 @@ async function incrementRoundsForExistingUserTest() {
     if (balance < 0.01) {
         throw new Error("Not enough ether");
     }
-    const result = await incrementRoundsForExistingUser(signer, 0, "table_nft_main_5_504", "table_nft_attributes_5_505");
+    const result = await incrementRoundsForExistingUser(0, "table_nft_main_5_504", "table_nft_attributes_5_505");
 }
 
 // For testing
