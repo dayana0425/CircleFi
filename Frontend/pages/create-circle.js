@@ -31,6 +31,7 @@ export default function CreateEvent() {
     try {
       const mainContract = connectContract();
       console.log("mainContract", mainContract.address);
+      debugger
 
       setLoading(true);
 
@@ -66,6 +67,7 @@ export default function CreateEvent() {
         image: getRandomImage(),
         frequency: frequency,
         contractAddress: savingCircleAddress,
+        host: account.address
       };
 
       const response = await fetch("/api/store-event-data", {
