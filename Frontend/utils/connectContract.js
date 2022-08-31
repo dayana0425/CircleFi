@@ -17,5 +17,4 @@ function connectContract() {
   console.log("success");
   return mainContract;
 }
-
 export default connectContract;
