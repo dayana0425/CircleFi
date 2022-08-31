@@ -19,7 +19,8 @@
     "@nomiclabs/buidler": "^1.4.8",
     "@openzeppelin/contracts": "^4.7.3",
     "chai": "^4.3.6",
-    "hardhat": "^2.9.3"
+    "hardhat": "^2.9.3",
+    "hardhat-abi-exporter": "^2.10.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
