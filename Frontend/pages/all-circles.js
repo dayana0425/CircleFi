@@ -60,7 +60,7 @@ export default function MyUpcomingEvents() {
       {/* <div className="px-16">
         {data && data.events.length == 0 && <p>No circles found</p>}
       </div> */}
-      {data && data.events.length > 0 && (
+      {/* {data && data.events.length > 0 && (
         <ul
           role="list"
           className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
@@ -76,7 +76,19 @@ export default function MyUpcomingEvents() {
             </li>
           ))}
         </ul>
-      )}
+      )} */}
+
+      <ul
+        role="list"
+        className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+      >
+        <EventCard
+          id="1"
+          name="Demo Circle"
+          eventTimestamp="123"
+          imageURL="/santorini.png"
+        />
+      </ul>
     </main>
     // </Dashboard>
   );
