@@ -64,16 +64,49 @@ contract SimpleSavingCircle is VRFConsumerBase {
     );
     event RegisteredNewUserAndPaidDeposit(
         bytes32 circleId, 
-        address participant);
-    event EveryonePaidDeposit(bytes32 circleId);
-    event StartedFirstRound(bytes32 circleId, address participant);
-    event PaidRound(bytes32 circleId, address participant);
-    event PartiallyPaidRound(bytes32 circleId, address participant, uint256 amountPaid);
-    event EveryonePaid(bytes32 circleId, uint256 amountPaid);
-    event RoundEndedAndUserWasPaidOut(bytes32 circleId, address winner, bool success);
-    event AllRoundsCompleted(bytes32 circleId);
-    event CompleteCircle(bytes32 circleId);
-    event EmergencyWithdrawal(bytes32 circleId, uint totalFunds, address participantAddress, uint256 sentFunds);
+        address participant
+    );
+    event StageChanged(
+        bytes32 circleId, 
+        Stages stage
+    );
+    event EveryonePaidDeposit(
+        bytes32 circleId
+    );
+    event StartedFirstRound(
+        bytes32 circleId, 
+        address host
+    );
+    event PaidRound(
+        bytes32 circleId, 
+        address participant
+    );
+    event PartiallyPaidRound(
+        bytes32 circleId, 
+        address participant, 
+        uint256 amountPaid
+    );
+    event EveryonePaid(
+        bytes32 circleId, 
+        uint256 amountPaid
+    );
+    event RoundEndedAndUserWasPaidOut(
+        bytes32 circleId, 
+        address winner, 
+        bool success
+    );
+    event AllRoundsCompleted(
+        bytes32 circleId
+    );
+    event CompleteCircle(
+        bytes32 circleId
+    );
+    event EmergencyWithdrawal(
+        bytes32 circleId, 
+        uint totalFunds, 
+        address participantAddress, 
+        uint256 sentFunds
+    );
 
     constructor () VRFConsumerBase(0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D, 0x326C977E6efc84E512bB9C30f76E30c160eD06FB) {
         keyHash = 0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
@@ -152,7 +185,8 @@ contract SimpleSavingCircle is VRFConsumerBase {
         Stage: SETUP 
     */
     function registerToSavingCircle(bytes32 circleId) external payable atStage(circleId, Stages.Setup) {
-        require(!users[msg.sender].isActive, "You are already registered.");
+        resetUser(msg.sender);
+        require(!isUserInCircle(circleId, msg.sender), "You are already registered.");
         require(idToCircle[circleId].stats.participantCounter < idToCircle[circleId].groupSize, "The current saving circle is full.");
         require(msg.value == idToCircle[circleId].saveAmount, "NOT ENOUGH");
         idToCircle[circleId].stats.participantCounter++;
@@ -167,10 +201,31 @@ contract SimpleSavingCircle is VRFConsumerBase {
         }
     }
 
+    function isUserInCircle(bytes32 circleId, address user) public view returns (bool userInCircle) {
+        for( uint256 i = 0; i < idToCircle[circleId].participantAddresses.length; i++) {
+            if(idToCircle[circleId].participantAddresses[i] == user) {
+                userInCircle = true;
+            }
+            else{
+                userInCircle = false;
+            }
+        }
+    }
+
+    function resetUser(address user) internal {
+        if(users[user].fullyPaid == true) {
+            users[user].fullyPaid = false;
+        }
+        if(users[user].amountPaid > 0) {
+            users[user].amountPaid = 0;
+        }
+    }
+
     function startFirstRound(bytes32 circleId) external onlyHost(idToCircle[circleId].host) atStage(circleId, Stages.Setup) {
         require(idToCircle[circleId].stats.roundCounter == 0, "This function can only be called if rounds haven't started yet.");
         require(idToCircle[circleId].stats.participantCounter == idToCircle[circleId].groupSize,"There are still spots left. All spots must be filled in order to start the rounds.");
         idToCircle[circleId].stats.stage = Stages.Save;
+        emit StageChanged(circleId, idToCircle[circleId].stats.stage);
         idToCircle[circleId].stats.roundCounter = 1;
         idToCircle[circleId].stats.roundStartTime = block.timestamp; 
         emit StartedFirstRound(circleId, msg.sender);
@@ -182,7 +237,7 @@ contract SimpleSavingCircle is VRFConsumerBase {
     function makePayment(bytes32 circleId)
         external
         payable
-        isRegistered(users[msg.sender].isActive)
+        isRegistered(isUserInCircle(circleId, msg.sender))
         atStage(circleId, Stages.Save)
     {
         uint256 _payAmount = msg.value;
@@ -220,6 +275,7 @@ contract SimpleSavingCircle is VRFConsumerBase {
             if (!users[idToCircle[circleId].participantAddresses[i]].fullyPaid) {
                 // a participant didn't fully pay
                 idToCircle[circleId].stats.stage = Stages.Emergency;
+                emit StageChanged(circleId, idToCircle[circleId].stats.stage);
                 require(users[idToCircle[circleId].participantAddresses[i]].fullyPaid == true, "A participant didn't fully pay. Extend Deadline or Emergency Withdrawal.");
             }
         }
@@ -244,6 +300,7 @@ contract SimpleSavingCircle is VRFConsumerBase {
             idToCircle[circleId].possibleWinnerAddresses.length == 0
         ) {
             idToCircle[circleId].stats.stage = Stages.Finished;
+            emit StageChanged(circleId, idToCircle[circleId].stats.stage);
             emit AllRoundsCompleted(circleId);
             return;
         }

@@ -149,7 +149,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         possibleWinnerAddresses.push(_host);
 
         // escrow - TODO: msg.value is in ETH => needs to be in DAI
-        Escrow escrow = new Escrow{value: msg.value}(host, msg.sender, depositFee);
+        Escrow escrow = new Escrow{value: msg.value}(host, msg.sender);
         participants[_host] = Participant(
             _host,
             msg.value,
@@ -184,7 +184,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         possibleWinnerAddresses.push(msg.sender);
 
         // escrow
-        Escrow escrow = new Escrow(host, msg.sender, depositFee);
+        Escrow escrow = new Escrow(host, msg.sender);
 
         participants[msg.sender] = Participant(
             msg.sender,

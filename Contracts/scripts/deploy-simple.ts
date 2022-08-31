@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import "dotenv/config";
 import * as savingCircleJson from "../artifacts/contracts/SimpleSavingCircle.sol/SimpleSavingCircle.json";
+import * as fs from "fs";
 
 // Do never expose your keys like this
 const EXPOSED_KEY =
@@ -35,6 +36,12 @@ console.log("Awaiting confirmations");
 await contract.deployed();
 console.log("Completed");
 console.log(`Contract deployed at ${contract.address}`);
+
+fs.writeFileSync(
+  "../Frontend/utils/contractAddress.js",
+  `export const contractAddress = "${contract.address}"`
+);
+
 }
 
 main().catch((error) => {

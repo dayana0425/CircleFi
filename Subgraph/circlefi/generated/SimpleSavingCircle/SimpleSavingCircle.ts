@@ -298,6 +298,28 @@ export class RoundEndedAndUserWasPaidOut__Params {
   }
 }
 
+export class StageChanged extends ethereum.Event {
+  get params(): StageChanged__Params {
+    return new StageChanged__Params(this);
+  }
+}
+
+export class StageChanged__Params {
+  _event: StageChanged;
+
+  constructor(event: StageChanged) {
+    this._event = event;
+  }
+
+  get circleId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get stage(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+}
+
 export class StartedFirstRound extends ethereum.Event {
   get params(): StartedFirstRound__Params {
     return new StartedFirstRound__Params(this);
@@ -315,7 +337,7 @@ export class StartedFirstRound__Params {
     return this._event.parameters[0].value.toBytes();
   }
 
-  get participant(): Address {
+  get host(): Address {
     return this._event.parameters[1].value.toAddress();
   }
 }
@@ -361,6 +383,38 @@ export class SimpleSavingCircle extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  isUserInCircle(circleId: Bytes, user: Address): boolean {
+    let result = super.call(
+      "isUserInCircle",
+      "isUserInCircle(bytes32,address):(bool)",
+      [
+        ethereum.Value.fromFixedBytes(circleId),
+        ethereum.Value.fromAddress(user)
+      ]
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isUserInCircle(
+    circleId: Bytes,
+    user: Address
+  ): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isUserInCircle",
+      "isUserInCircle(bytes32,address):(bool)",
+      [
+        ethereum.Value.fromFixedBytes(circleId),
+        ethereum.Value.fromAddress(user)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
   keyHash(): Bytes {

@@ -40,6 +40,7 @@ function Event({ event }) {
     try {
       const mainContract = connectContract();
       console.log("mainContract", mainContract.address);
+      console.log("account: ", account.address);
 
       if (mainContract) {
         const txn = await mainContract.registerToSavingCircle(event.id, {
