@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { ethers } from "ethers";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton, connectorsForWallets } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import Alert from "../components/Alert";
 import connectContract from "../utils/connectContract";
@@ -30,10 +30,7 @@ export default function CreateEvent() {
 
     try {
       const mainContract = connectContract();
-      console.log("mainContract", mainContract.address);
-
       setLoading(true);
-
       let deposit = ethers.utils.parseEther(contributionAmount);
       let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
       setEventDate(eventDateAndTime);
@@ -43,29 +40,20 @@ export default function CreateEvent() {
       switch (frequency) {
         case "weekly":
           payTime = 7;
+          break;
         case "biweekly":
           payTime = 14;
+          break;
         case "monthly":
           payTime = 30;
+          break;
       }
-      console.log(payTime)
-
-      const savingCircleAddress = await mainContract.createSavingCircle(
-        deposit,
-        maxCapacity,
-        payTime,
-        { value: deposit,
-          gasLimit: 300000,
-        });
-      console.log('create saving')
-      console.log("savingCircleAddress", savingCircleAddress);
 
       const body = {
         name: circleName,
         description: eventDescription,
         image: getRandomImage(),
-        frequency: frequency,
-        contractAddress: savingCircleAddress,
+        frequency: frequency
       };
 
       const response = await fetch("/api/store-event-data", {
@@ -76,13 +64,25 @@ export default function CreateEvent() {
       if (response.status !== 200) {
         alert("Oops! Something went wrong. Please refresh and try again.");
       } else {
-        console.log("Form successfully submitted!");
         let responseJSON = await response.json();
         console.log(responseJSON);// here we can use this cid to access savingCircleAddress through web3 storage
+        const txn = await mainContract.createSavingCircle(
+          deposit,
+          maxCapacity,
+          payTime,
+          responseJSON.cid,
+          { value: deposit,
+            gasLimit: 3000000,
+          }
+        );
+        console.log("Minting New Saving Circle...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        console.log(txn);
         setSuccess(true);
         setLoading(false);
-        setMessage("Your event has been created successfully.");
-        //await createEvent(responseJSON.cid);
+        setMessage("Your saving circle has been created successfully.");
+        console.log("Saving Circle successfully submitted!");
       }
     } catch (error) {
       alert(
@@ -90,44 +90,6 @@ export default function CreateEvent() {
       );
     }
   }
-
-  const createEvent = async (cid) => {
-    try {
-      const rsvpContract = connectContract();
-
-      if (rsvpContract) {
-        let deposit = ethers.utils.parseEther(contributionAmount);
-        let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
-        let eventTimestamp = eventDateAndTime.getTime();
-        let eventDataCID = cid;
-
-        const txn = await rsvpContract.createNewEvent(
-          eventTimestamp,
-          deposit,
-          maxCapacity,
-          eventDataCID,
-          { gasLimit: 900000 }
-        );
-
-        setLoading(true);
-        console.log("Minting...", txn.hash);
-        let wait = await txn.wait();
-        console.log("Minted -- ", txn.hash);
-
-        setEventID(wait.events[0].args[0]);
-        setSuccess(true);
-        setLoading(false);
-        setMessage("Your event has been created successfully.");
-      } else {
-        console.log("Error getting contract.");
-      }
-    } catch (error) {
-      setSuccess(false);
-      setMessage(`There was an error creating your event: ${error.message}`);
-      setLoading(false);
-      console.log(error);
-    }
-  };
 
   useEffect(() => {
     // disable scroll on <input> elements of type number
