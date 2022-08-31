@@ -13,40 +13,202 @@ import {
   EmojiHappyIcon,
   TicketIcon,
   UsersIcon,
-  LinkIcon,
 } from "@heroicons/react/outline";
+
+function checkIfAlreadyRegistered() {
+  if (account) {
+    for (let i = 0; i < event.participantAddr.length; i++) {
+      const thisAccount = account.address.toLowerCase();
+      if (event.rsvps[i].attendee.id.toLowerCase() == thisAccount) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 function Event({ event }) {
   const { data: account } = useAccount();
   const [success, setSuccess] = useState(null);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(null);
-  const [currentTimestamp, setEventTimestamp] = useState(new Date().getTime());
 
-  const newRSVP = async () => {
+  const registerToSavingCircle = async () => {
     try {
       const mainContract = connectContract();
       console.log("mainContract", mainContract.address);
 
       if (mainContract) {
         const txn = await mainContract.registerToSavingCircle(event.id, {
-          value: event.deposit,
-          gasLimit: 300000,
+          value: event.saveAmount,
+          gasLimit: 3000000,
         });
         setLoading(true);
         console.log("Minting...", txn.hash);
-
         await txn.wait();
         console.log("Minted -- ", txn.hash);
         setSuccess(true);
         setLoading(false);
-        setMessage("Your RSVP has been created successfully.");
+        setMessage("You successfully registered!");
       } else {
-        console.log("Error getting contract.");
+        console.log("Error calling contract function: registerToSavingCircle().");
       }
     } catch (error) {
       setSuccess(false);
-      setMessage("Error!fdxbfejziuhefiuw");
+      setMessage("Error in registering. Try Again.");
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const makePayment = async () => {
+    try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      if (mainContract) {
+        const txn = await mainContract.makePayment(event.id, {
+          value: event.saveAmount,
+          gasLimit: 3000000,
+        });
+        setLoading(true);
+        console.log("Minting...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        setSuccess(true);
+        setLoading(false);
+        setMessage("You successfully paid for the round!");
+      } else {
+        console.log("Error calling contract function: makePayment().");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage("Error in paying. Try Again.");
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const startFirstRound = async () => {
+    try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      if (mainContract) {
+        const txn = await mainContract.startFirstRound(event.id);
+        setLoading(true);
+        console.log("Minting...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        setSuccess(true);
+        setLoading(false);
+        setMessage("You successfully started the first round!");
+      } else {
+        console.log("Error getting calling contract function: startFirstRound()");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage("Error in starting next round. Try Again.");
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const endRoundAndStartNextRound = async () => {
+    try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      if (mainContract) {
+        const txn = await mainContract.endRoundAndStartNextRound(event.id);
+        setLoading(true);
+        console.log("Minting...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        setSuccess(true);
+        setLoading(false);
+        setMessage("You successfully ended the round & started the next one!");
+      } else {
+        console.log("Error getting calling contract function: startFirstRound()");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage("Error in starting next round. Try Again.");
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const completeCircle = async () => {
+    try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      if (mainContract) {
+        const txn = await mainContract.completeCircle(event.id);
+        setLoading(true);
+        console.log("Minting...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        setSuccess(true);
+        setLoading(false);
+        setMessage("Circle Completed!");
+      } else {
+        console.log("Error getting calling contract function: completeCircle()");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage("Error in completing circle. Try Again.");
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const extendDeadline = async () => {
+    try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      if (mainContract) {
+        const txn = await mainContract.extendDeadline(event.id);
+        setLoading(true);
+        console.log("Minting...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        setSuccess(true);
+        setLoading(false);
+        setMessage("Deadline successfully extended.");
+      } else {
+        console.log("Error getting calling contract function: extendDeadline()");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage("Error in extending deadline. Try Again.");
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const emergencyWithdrawal = async () => {
+    try {
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
+      if (mainContract) {
+        const txn = await mainContract.emergencyWithdrawal(event.id);
+        setLoading(true);
+        console.log("Minting...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        setSuccess(true);
+        setLoading(false);
+        setMessage("Emergency withdrawal successfully completed. Everyone recieved their funds back.");
+      } else {
+        console.log("Error getting calling contract function: emergencyWithdrawal()");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage("Error in emergency withdrawal. Try Again.");
       setLoading(false);
       console.log(error);
     }
@@ -116,12 +278,106 @@ function Event({ event }) {
                   className="text-indigo-800 truncate hover:underline"
                   href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}address/${event.eventOwner}`}
                   target="_blank"
-                  rel="noreferrer"
-                >
-                  {event.eventOwner}
+                  rel="noreferrer">
+                  {event.host}
                 </a>
               </span>
             </div>
+            <div className="flex item-center">
+              <span className="truncate">     
+              { account ? (     
+                <button
+                  type="button"
+                  className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  onClick={registerToSavingCircle}>
+                  Register for {ethers.utils.formatEther(event.saveAmount)} ETH
+                </button> ) : ( <ConnectButton /> )
+              }
+              </span>
+            </div>
+            <div className="flex item-center">
+              <span className="truncate">     
+              { account ? (     
+                <button
+                  type="button"
+                  className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  onClick={makePayment}>
+                  Make Payment
+                </button> ) : ( "Make Payments Once Round Begins")
+              }
+              </span>
+            </div>
+            <div className="flex item-center">
+              <span className="truncate">     
+              { (account) ? 
+                (account.address.toString().toLowerCase().trim() === event.host.toString().trim()) ?      
+                <button
+                  type="button"
+                  className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={startFirstRound}>
+                  Start First Round
+                </button>
+                : ("") : ("")
+              }
+              </span>
+            </div>
+            <div className="flex item-center">
+              <span className="truncate">     
+              { (account) ? 
+                (account.address.toString().toLowerCase().trim() === event.host.toString().trim()) ?      
+                <button
+                  type="button"
+                  className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={endRoundAndStartNextRound}>
+                  End Round
+                </button>
+                : ("") : ("")
+              }
+              </span>
+            </div>
+            <div className="flex item-center">
+              <span className="truncate">     
+              { (account) ? 
+                (account.address.toString().toLowerCase().trim() === event.host.toString().trim()) ?      
+                <button
+                  type="button"
+                  className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={endRoundAndStartNextRound}>
+                  Complete Saving Circle
+                </button>
+                : ("") : ("")
+              }
+              </span>
+            </div>
+            <div className="flex item-center">
+              <span className="truncate">     
+              { (account) ? 
+                (account.address.toString().toLowerCase().trim() === event.host.toString().trim()) ?      
+                <button
+                  type="button"
+                  className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-pink-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={extendDeadline}>
+                  Extend Deadline For Round
+                </button>
+                : ("") : ("")
+              }
+              </span>
+            </div>
+            <div className="flex item-center">
+              <span className="truncate">     
+              { (account) ? 
+                (account.address.toString().toLowerCase().trim() === event.host.toString().trim()) ?      
+                <button
+                  type="button"
+                  className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-pink-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={emergencyWithdrawal}>
+                  Emergency Withdrawl
+                </button>
+                : ("") : ("")
+              }
+              </span>
+            </div>
+
           </div>
         </div>
       </section>
@@ -143,6 +399,7 @@ export async function getServerSideProps(context) {
           host
           imageURL
           description
+          saveAmount
         }
       }
     `,
