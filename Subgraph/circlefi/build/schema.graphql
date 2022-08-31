@@ -1,0 +1,43 @@
+type SavingCircle @entity {
+  id: ID!
+  circleName: String!
+  frequency: String!
+  host: Bytes!
+  description: String
+  imageURL: String
+  groupSize: BigInt!
+  saveAmount: BigInt!
+  payTime: BigInt!
+  stage: String!
+  round: BigInt!
+  roundStartTime: BigInt!
+  participantCounter: BigInt!
+  paidCounter: BigInt!
+  paidDepositCounter: BigInt!
+  paidOut: Boolean!
+  everyonePaidDeposit: Boolean!
+  participantAddresses: [ParticipantsRegistered!] @derivedFrom(field: "circle")
+}
+
+type ParticipantsRegistered @entity {
+  id: ID!
+  attendee: Account!
+  circle: SavingCircle!
+}
+
+type Hosting @entity {
+  id: ID!
+  host: Account!
+  circle: SavingCircle!
+}
+
+type Account @entity {
+  id: ID! 
+  totalCurrentCircles: BigInt!
+  totalCompletedCircles: BigInt!
+  totalHostedCircles: BigInt!
+  currentCircles: [ParticipantsRegistered!] @derivedFrom(field: "attendee")
+  hosting: [Hosting!] @derivedFrom(field: "host")
+}
+
+

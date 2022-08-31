@@ -18,30 +18,18 @@ import {
 
 function Event({ event }) {
   const { data: account } = useAccount();
-
   const [success, setSuccess] = useState(null);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(null);
   const [currentTimestamp, setEventTimestamp] = useState(new Date().getTime());
 
-  function checkIfAlreadyRSVPed() {
-    if (account) {
-      for (let i = 0; i < event.rsvps.length; i++) {
-        const thisAccount = account.address.toLowerCase();
-        if (event.rsvps[i].attendee.id.toLowerCase() == thisAccount) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   const newRSVP = async () => {
     try {
-      const rsvpContract = connectContract();
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
 
-      if (rsvpContract) {
-        const txn = await rsvpContract.createNewRSVP(event.id, {
+      if (mainContract) {
+        const txn = await mainContract.registerToSavingCircle(event.id, {
           value: event.deposit,
           gasLimit: 300000,
         });
@@ -58,7 +46,7 @@ function Event({ event }) {
       }
     } catch (error) {
       setSuccess(false);
-      setMessage("Error!");
+      setMessage("Error!fdxbfejziuhefiuw");
       setLoading(false);
       console.log(error);
     }
@@ -67,8 +55,8 @@ function Event({ event }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Head>
-        <title>{event.name} | web3rsvp</title>
-        <meta name="description" content={event.name} />
+        <title>{event.circleName} | CircleFi</title>
+        <meta name="description" content={event.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <section className="relative py-12">
@@ -98,7 +86,7 @@ function Event({ event }) {
         )}
         <h6 className="mb-2">{formatTimestamp(event.eventTimestamp)}</h6>
         <h1 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl mb-6 lg:mb-12">
-          {event.name}
+          {event.circleName}
         </h1>
         <div className="flex flex-wrap-reverse lg:flex-nowrap">
           <div className="w-full pr-0 lg:pr-24 xl:pr-32">
@@ -110,40 +98,6 @@ function Event({ event }) {
             <p>{event.description}</p>
           </div>
           <div className="max-w-xs w-full flex flex-col gap-4 mb-6 lg:mb-0">
-            {event.eventTimestamp > currentTimestamp ? (
-              account ? (
-                checkIfAlreadyRSVPed() ? (
-                  <>
-                    <span className="w-full text-center px-6 py-3 text-base font-medium rounded-full text-teal-800 bg-teal-100">
-                      You have RSVPed! 🙌
-                    </span>
-                    <div className="flex item-center">
-                      <LinkIcon className="w-6 mr-2 text-indigo-800" />
-                      <a
-                        className="text-indigo-800 truncate hover:underline"
-                        href={event.link}
-                      >
-                        {event.link}
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    onClick={newRSVP}
-                  >
-                    RSVP for {ethers.utils.formatEther(event.deposit)} MATIC
-                  </button>
-                )
-              ) : (
-                <ConnectButton />
-              )
-            ) : (
-              <span className="w-full text-center px-6 py-3 text-base font-medium rounded-full border-2 border-gray-200">
-                Event has ended
-              </span>
-            )}
             <div className="flex item-center">
               <UsersIcon className="w-6 mr-2" />
               <span className="truncate">
@@ -174,35 +128,21 @@ function Event({ event }) {
     </div>
   );
 }
-
 export default Event;
 
 export async function getServerSideProps(context) {
   const { id } = context.params;
   console.log(id);
-
   const { data } = await client.query({
     query: gql`
-      query Event($id: String!) {
-        event(id: $id) {
+      query SavingCircle($id: String!) {
+        savingCircle(id: $id) {
           id
-          eventID
-          name
-          description
-          link
-          eventOwner
-          eventTimestamp
-          maxCapacity
-          deposit
-          totalRSVPs
-          totalConfirmedAttendees
+          circleName
+          frequency
+          host
           imageURL
-          rsvps {
-            id
-            attendee {
-              id
-            }
-          }
+          description
         }
       }
     `,
@@ -213,8 +153,8 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      event: data.event,
-    },
+      event: data.savingCircle,
+    }
   };
 }
 

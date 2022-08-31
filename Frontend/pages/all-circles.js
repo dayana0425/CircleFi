@@ -11,12 +11,8 @@ const MY_UPCOMING_EVENTS = gql`
       where: { eventOwner: $eventOwner, eventTimestamp_gt: $currentTimestamp }
     ) {
       id
-      eventID
       name
       description
-      eventTimestamp
-      maxCapacity
-      totalRSVPs
       imageURL
     }
   }
@@ -42,7 +38,7 @@ export default function MyUpcomingEvents() {
   if (error)
     return (
       <Dashboard page="events" isUpcoming={true}>
-        <p>`Error! ${error.message}`</p>
+        <p>`Error GHIdefds! ${error.message}`</p>
       </Dashboard>
     );
 

@@ -24,24 +24,13 @@ function Event({ event }) {
   const [loading, setLoading] = useState(null);
   const [currentTimestamp, setEventTimestamp] = useState(new Date().getTime());
 
-  function checkIfAlreadyRSVPed() {
-    if (account) {
-      for (let i = 0; i < event.rsvps.length; i++) {
-        const thisAccount = account.address.toLowerCase();
-        if (event.rsvps[i].attendee.id.toLowerCase() == thisAccount) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   const newRSVP = async () => {
     try {
-      const rsvpContract = connectContract();
+      const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
 
-      if (rsvpContract) {
-        const txn = await rsvpContract.createNewRSVP(event.id, {
+      if (mainContract) {
+        const txn = await mainContract.registerToSavingCircle(event.id, {
           value: event.deposit,
           gasLimit: 300000,
         });
@@ -58,7 +47,7 @@ function Event({ event }) {
       }
     } catch (error) {
       setSuccess(false);
-      setMessage("Error!");
+      setMessage("Error!fdxbfejziuhefiuw");
       setLoading(false);
       console.log(error);
     }
@@ -110,7 +99,7 @@ function Event({ event }) {
             <p>{event.description}</p>
           </div>
           <div className="max-w-xs w-full flex flex-col gap-4 mb-6 lg:mb-0">
-            {event.eventTimestamp > currentTimestamp ? (
+            {/* {event.eventTimestamp > currentTimestamp ? (
               account ? (
                 checkIfAlreadyRSVPed() ? (
                   <>
@@ -143,11 +132,11 @@ function Event({ event }) {
               <span className="w-full text-center px-6 py-3 text-base font-medium rounded-full border-2 border-gray-200">
                 Event has ended
               </span>
-            )}
+            )} */}
             <div className="flex item-center">
               <UsersIcon className="w-6 mr-2" />
               <span className="truncate">
-                {event.totalRSVPs}/{event.maxCapacity} attending
+                {/* {event.totalRSVPs}/{event.maxCapacity} attending */}
               </span>
             </div>
             <div className="flex item-center">
@@ -164,7 +153,7 @@ function Event({ event }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {event.eventOwner}
+                  {event.host}
                 </a>
               </span>
             </div>
@@ -183,26 +172,13 @@ export async function getServerSideProps(context) {
 
   const { data } = await client.query({
     query: gql`
-      query Event($id: String!) {
+      query SavingCircle($id: String!) {
         event(id: $id) {
           id
-          eventID
-          name
-          description
-          link
-          eventOwner
-          eventTimestamp
-          maxCapacity
-          deposit
-          totalRSVPs
-          totalConfirmedAttendees
+          circleName
+          frequency
+          host
           imageURL
-          rsvps {
-            id
-            attendee {
-              id
-            }
-          }
         }
       }
     `,
