@@ -6,6 +6,8 @@ __Links__
 
 [Watch Our Video Demo](https://www.youtube.com/watch?v=376d9SnTVFE)
 
+[Hosted Subgraph](https://thegraph.com/hosted-service/subgraph/dayana0425/circlefi)
+
 [Presentation Slides](https://docs.google.com/presentation/d/1gjZv8m3SsWpZF760sRUjZQhN5RzWaOhEH173jhEKUV0/edit?usp=sharing)
 
 __Team Members__
