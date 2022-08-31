@@ -1,8 +1,8 @@
-import abiJSON from "../../Contracts/artifacts/contracts/SimpleSavingCircle.sol/SimpleSavingCircle.json";
+import abiJSON from "./Main.json";
 import { ethers } from "ethers";
 
 function connectContract() {
-  const contractAddress = "0x61f452de1cC6d18621261A574272B56d3C2A5907";
+  const contractAddress = "0x61f452de1cC6d18621261A574272B56d3C2A5907"; // update everytime SimpleSavingCircle.sol is deployed + update abi
   const contractABI = abiJSON.abi;
   console.log(contractABI);
   let mainContract;
