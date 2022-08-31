@@ -48,16 +48,18 @@ export default function MyUpcomingEvents() {
 
   return (
     // <Dashboard page="events" isUpcoming={true}>
-    <div className="flex flex-wrap py-8">
-      <div className="sm:w-10/12 sm:pl-8 mx-8">
-        <h1 className="text-2xl tracking-tight font-extrabold text-gray-900 sm:text-3xl md:text-4xl mb-4 border-b pb-4 border-gray-200">
-          All Circles
-        </h1>
+    <main className="flex-1 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="sm:w-10/12 sm:pl-8">
+          <h1 className="text-2xl tracking-tight font-extrabold text-gray-900 sm:text-3xl md:text-4xl mb-4 border-b pb-4 border-gray-200">
+            All Circles
+          </h1>
+        </div>
       </div>
 
-      <div className="px-16">
+      {/* <div className="px-16">
         {data && data.events.length == 0 && <p>No circles found</p>}
-      </div>
+      </div> */}
       {data && data.events.length > 0 && (
         <ul
           role="list"
@@ -75,7 +77,7 @@ export default function MyUpcomingEvents() {
           ))}
         </ul>
       )}
-    </div>
+    </main>
     // </Dashboard>
   );
 }

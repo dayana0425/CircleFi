@@ -30,7 +30,10 @@ export default function CreateEvent() {
 
     try {
       const mainContract = connectContract();
+      console.log("mainContract", mainContract.address);
+
       setLoading(true);
+
       let deposit = ethers.utils.parseEther(contributionAmount);
       let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
       setEventDate(eventDateAndTime);
