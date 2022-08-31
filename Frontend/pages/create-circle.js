@@ -323,7 +323,7 @@ export default function CreateEvent() {
           <div>
             Success! Please wait a few minutes, then check out your saving circle page{" "}
             <span className="font-bold">
-              <Link href={`/circles/${eventID}`}>here</Link>
+              <Link href={`/circle/${eventID}`}>here</Link>
             </span>
           </div>
         )}
