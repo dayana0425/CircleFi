@@ -18,6 +18,10 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/outline";
 
+import BeginnerBadge from "../../../Contracts/images/badge/beginner.png";
+import ProBadge from "../../../Contracts/images/badge/pro.png";
+import ExpertBadge from "../../../Contracts/images/badge/expert.png";
+
 function Event({ event }) {
   const { data: account } = useAccount();
   const [success, setSuccess] = useState(null);
@@ -353,7 +357,8 @@ function Event({ event }) {
               <div className="flex item-center">
                 <UsersIcon className="w-6 mr-2" />
                 <span className="truncate">
-                  {event.participantCounter} / {event.groupSize} members
+                  {/* {event.participantCounter} / {event.groupSize} members */}
+                  3 / 5 registered
                 </span>
               </div>
               <div className="flex items-center">
@@ -384,7 +389,7 @@ function Event({ event }) {
                       <div className="pl-2 pr-1 mt-1.5">
                         <Image src={ETHLogo} width="10px" height="20px" />
                       </div>
-                      {ethers.utils.formatEther(event.saveAmount)}
+                      {/* {ethers.utils.formatEther(event.saveAmount)} */}0.25
                     </button>
                   ) : (
                     <ConnectButton />
@@ -491,8 +496,57 @@ function Event({ event }) {
         </div>
         <div className="max-w-xs w-full flex flex-col gap-4 mb-6 lg:mb-0">
           <div className="flex flex-col gap-4  rounded-md p-4">
-            <h1 className="text-indigo-900 font-semibold">Participants</h1>
-            {}
+            <h1 className="text-indigo-900 text-lg font-semibold">
+              Participants
+            </h1>
+            <li className="list-none text-black text-lg">
+              <ul className="mb-1 flex flex-row items-center gap-2">
+                0xc50...3D7e
+                <Image
+                  className="relative left-50"
+                  height="40px"
+                  width="40px"
+                  src={BeginnerBadge}
+                />
+              </ul>
+
+              <ul className="mb-1 flex flex-row items-center gap-2">
+                0xf5e...9213
+                <Image
+                  className="relative left-50"
+                  height="40px"
+                  width="40px"
+                  src={ProBadge}
+                />
+              </ul>
+              <ul className="mb-1 flex flex-row items-center gap-2">
+                0xc4a...5883
+                <Image
+                  className="relative left-50"
+                  height="40px"
+                  width="40px"
+                  src={ProBadge}
+                />
+              </ul>
+              <ul className="mb-1 flex flex-row items-center gap-2">
+                0x37d...Fcc2
+                <Image
+                  className="relative left-50"
+                  height="40px"
+                  width="40px"
+                  src={ExpertBadge}
+                />
+              </ul>
+              <ul className="mb-1 flex flex-row items-center gap-2">
+                0xc0c...52cf
+                <Image
+                  className="relative left-50"
+                  height="40px"
+                  width="40px"
+                  src={ExpertBadge}
+                />
+              </ul>
+            </li>
           </div>
           {account ? (
             account.address.toString().toLowerCase().trim() ===
