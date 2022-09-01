@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract SimpleSavingCircle is VRFConsumerBase {
     using SafeMath for uint256;
@@ -138,7 +139,7 @@ contract SimpleSavingCircle is VRFConsumerBase {
         require(_groupSize > 1 && _groupSize <= 12,"_groupSize must be greater than 1 and less than or equal to 12");
         require(_saveAmountPerRound > 0, "Saving Amount cannot be less than 0 ETH");
         require(_payTime >= 1, "Pay Time cannot be less than a day.");
-
+        resetUser(msg.sender);
         bytes32 circleId = keccak256(
             abi.encodePacked(
                 msg.sender,
@@ -185,7 +186,7 @@ contract SimpleSavingCircle is VRFConsumerBase {
         Stage: SETUP 
     */
     function registerToSavingCircle(bytes32 circleId) external payable atStage(circleId, Stages.Setup) {
-        resetUser(msg.sender);
+        resetUser(msg.sender); // kinda hacking here - rethink implementation design
         require(!isUserInCircle(circleId, msg.sender), "You are already registered.");
         require(idToCircle[circleId].stats.participantCounter < idToCircle[circleId].groupSize, "The current saving circle is full.");
         require(msg.value == idToCircle[circleId].saveAmount, "NOT ENOUGH");
@@ -204,12 +205,10 @@ contract SimpleSavingCircle is VRFConsumerBase {
     function isUserInCircle(bytes32 circleId, address user) public view returns (bool userInCircle) {
         for( uint256 i = 0; i < idToCircle[circleId].participantAddresses.length; i++) {
             if(idToCircle[circleId].participantAddresses[i] == user) {
-                userInCircle = true;
-            }
-            else{
-                userInCircle = false;
+                return true;
             }
         }
+        return false;
     }
 
     function resetUser(address user) internal {

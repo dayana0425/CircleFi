@@ -41,7 +41,7 @@ export default function Home() {
         {/* <DashboardNav page={page} /> */}
         <div className="sm:w-10/12 sm:pl-8">
           <h1 className="mb-8 text-2xl tracking-tight font-extrabold text-gray-900 sm:text-3xl md:text-4xl mt-8 mb-16">
-            All Circles
+            Circle Explorer
           </h1>
         </div>
 
@@ -60,6 +60,11 @@ export default function Home() {
                 />
               </li>
             ))}
+            {(data && data.savingCircles.length == 0) &&
+            <div className="sm:w-10/12 sm:pl-8">
+              <p>No Circles Have Been Created Yet.</p>
+            </div>
+            }
         </ul>
       </div>
     </div>
