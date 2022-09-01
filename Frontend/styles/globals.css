@@ -86,3 +86,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .center-view-id{
   width: 5000px;
 }
+
+.circle-index-view{
+  height:160px;
+  width:160px;
+  display:flex;
+  flex-direction:row;
+  justify-content: center;
+  align-items: center;
+}

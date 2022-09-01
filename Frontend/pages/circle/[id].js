@@ -378,7 +378,10 @@ function Event({ event }) {
                       onClick={registerToSavingCircle}
                     >
                       Register for{"  "}
+                      <div className="pl-2 pr-1 mt-1.5">
+
                       <Image src={ETHLogo} width="10px" height="20px" />
+                      </div>
                       {ethers.utils.formatEther(event.saveAmount)}
                     </button>
                   ) : (
