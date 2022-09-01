@@ -8,6 +8,7 @@ import Alert from "../components/Alert";
 import connectContract from "../utils/connectContract";
 import getRandomImage from "../utils/getRandomImage";
 
+
 export default function CreateEvent() {
   const { data: account } = useAccount();
 
@@ -18,7 +19,6 @@ export default function CreateEvent() {
   const [eventDescription, setEventDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("");
-  // const [eventLink, setEventLink] = useState("");
 
   const [success, setSuccess] = useState(null);
   const [message, setMessage] = useState(null);
@@ -43,27 +43,20 @@ export default function CreateEvent() {
       switch (frequency) {
         case "weekly":
           payTime = 7;
+          break;
         case "biweekly":
           payTime = 14;
+          break;
         case "monthly":
           payTime = 30;
+          break;
       }
-      console.log(payTime)
-
-      const savingCircleAddress = await mainContract.createSavingCircle(
-        deposit,
-        maxCapacity,
-        payTime
-      );
-      console.log('create saving')
-      console.log("savingCircleAddress", savingCircleAddress);
 
       const body = {
         name: circleName,
         description: eventDescription,
         image: getRandomImage(),
-        frequency: frequency,
-        contractAddress: savingCircleAddress,
+        frequency: frequency
       };
 
       const response = await fetch("/api/store-event-data", {
@@ -72,15 +65,26 @@ export default function CreateEvent() {
         body: JSON.stringify(body),
       });
       if (response.status !== 200) {
-        alert("Oops! Something went wrong. Please refresh and try again.");
+        alert("Oops! Something went wrong. Please refresh and try again. Response Status: ", reponse.status);
       } else {
-        console.log("Form successfully submitted!");
         let responseJSON = await response.json();
-        console.log(responseJSON);// here we can use this cid to access savingCircleAddress through web3 storage
+        const txn = await mainContract.createSavingCircle(
+          deposit,
+          maxCapacity,
+          payTime,
+          responseJSON.cid,
+          { value: deposit,
+            gasLimit: 7000000,
+          }
+        );
+        console.log("Minting New Saving Circle...", txn.hash);
+        let wait = await txn.wait();
+        console.log("Minted -- ", txn.hash);
+        console.log("Circle ID: ", wait.events[1].args.circleId);
+        setEventID(wait.events[1].args.circleId);
         setSuccess(true);
         setLoading(false);
-        setMessage("Your event has been created successfully.");
-        //await createEvent(responseJSON.cid);
+        setMessage("Your saving circle has been created successfully.");
       }
     } catch (error) {
       alert(
@@ -89,46 +93,7 @@ export default function CreateEvent() {
     }
   }
 
-  const createEvent = async (cid) => {
-    try {
-      const rsvpContract = connectContract();
-
-      if (rsvpContract) {
-        let deposit = ethers.utils.parseEther(contributionAmount);
-        let eventDateAndTime = new Date(`${eventDate} ${eventTime}`);
-        let eventTimestamp = eventDateAndTime.getTime();
-        let eventDataCID = cid;
-
-        const txn = await rsvpContract.createNewEvent(
-          eventTimestamp,
-          deposit,
-          maxCapacity,
-          eventDataCID,
-          { gasLimit: 900000 }
-        );
-
-        setLoading(true);
-        console.log("Minting...", txn.hash);
-        let wait = await txn.wait();
-        console.log("Minted -- ", txn.hash);
-
-        setEventID(wait.events[0].args[0]);
-        setSuccess(true);
-        setLoading(false);
-        setMessage("Your event has been created successfully.");
-      } else {
-        console.log("Error getting contract.");
-      }
-    } catch (error) {
-      setSuccess(false);
-      setMessage(`There was an error creating your event: ${error.message}`);
-      setLoading(false);
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
-    // disable scroll on <input> elements of type number
     document.addEventListener("wheel", (event) => {
       if (document.activeElement.type === "number") {
         document.activeElement.blur();
@@ -178,17 +143,17 @@ export default function CreateEvent() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <Head>
-        <title>Create your event | web3rsvp</title>
+        <title>Create Your Saving Circle | CircleFi</title>
         <meta
           name="description"
-          content="Create your virtual event on the blockchain"
+          content="Create your saving circle on the blockchain"
         />
       </Head>
       <section className="relative py-12">
         {loading && (
           <Alert
             alertType={"loading"}
-            alertBody={"Please wait"}
+            alertBody={"Creating Circle - Please wait"}
             triggerAlert={true}
             color={"white"}
           />
@@ -217,14 +182,12 @@ export default function CreateEvent() {
         {account && !success && (
           <form
             onSubmit={handleSubmit}
-            className="space-y-8 divide-y divide-gray-200"
-          >
+            className="space-y-8 divide-y divide-gray-200">
             <div className="space-y-6 sm:space-y-5">
               <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
                 <label
                   htmlFor="eventname"
-                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                >
+                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                   Circle name
                 </label>
                 <div className="mt-1 sm:mt-0 sm:col-span-2">
@@ -235,52 +198,14 @@ export default function CreateEvent() {
                     className="block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
                     required
                     value={circleName}
-                    onChange={(e) => setCircleName(e.target.value)}
-                  />
+                    onChange={(e) => setCircleName(e.target.value)}/>
                 </div>
               </div>
-
-              {/* <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
-                <label
-                  htmlFor="date"
-                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                >
-                  Date
-                  <p className="mt-1 max-w-2xl text-sm text-gray-400">
-                    Your savings circle start date
-                  </p>
-                </label>
-                <div className="mt-1 sm:mt-0 flex flex-wrap sm:flex-nowrap gap-2">
-                  <div className="w-1/2">
-                    <input
-                      id="date"
-                      name="date"
-                      type="date"
-                      className="max-w-lg block focus:ring-indigo-500 focus:border-indigo-500 w-full shadow-sm sm:max-w-xs sm:text-sm border border-gray-300 rounded-md"
-                      required
-                      value={eventDate}
-                      onChange={(e) => setEventDate(e.target.value)}
-                    />
-                  </div>
-                  <div className="w-1/2">
-                    <input
-                      id="time"
-                      name="time"
-                      type="time"
-                      className="max-w-lg block focus:ring-indigo-500 focus:border-indigo-500 w-full shadow-sm sm:max-w-xs sm:text-sm border border-gray-300 rounded-md"
-                      required
-                      value={eventTime}
-                      onChange={(e) => setEventTime(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div> */}
 
               <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
                 <label
                   htmlFor="max-capacity"
-                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                >
+                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                   Capacity
                   <p className="mt-1 max-w-2xl text-sm text-gray-400">
                     Limit the number of spots available for your savings circle.
@@ -295,16 +220,14 @@ export default function CreateEvent() {
                     placeholder="0"
                     className="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border border-gray-300 rounded-md"
                     value={maxCapacity}
-                    onChange={(e) => setMaxCapacity(e.target.value)}
-                  />
+                    onChange={(e) => setMaxCapacity(e.target.value)}/>
                 </div>
               </div>
 
               <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
                 <label
                   htmlFor="refundable-deposit"
-                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                >
+                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                   Contribution Amount
                   <p className="mt-1 max-w-2xl text-sm text-gray-400">
                     How much each member contributes to the savings circle (in ETH)
@@ -329,8 +252,7 @@ export default function CreateEvent() {
               <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
                 <label
                   htmlFor="frequency"
-                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                >
+                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                   Frequency
                   <p className="mt-1 max-w-2xl text-sm text-gray-400">
                     Set how often members will contribute to the savings circle
@@ -345,14 +267,12 @@ export default function CreateEvent() {
                     inputMode="decimal"
                     className="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border border-gray-300 rounded-md"
                     value={frequency}
-                    onChange={(e) => setFrequency(e.target.value)}
-                  >
+                    onChange={(e) => setFrequency(e.target.value)}>
                     <option
                       disabled="disabled"
                       value=""
                       id="frequency-placeholder"
-                      style={{ color: "red" }}
-                    >
+                      style={{ color: "red" }}>
                       Select frequency
                     </option>
                     <option value="weekly">Every week</option>
@@ -361,34 +281,10 @@ export default function CreateEvent() {
                   </select>
                 </div>
               </div>
-
-              {/* <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
-                <label
-                  htmlFor="event-link"
-                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                >
-                  Event link
-                  <p className="mt-1 max-w-2xl text-sm text-gray-400">
-                    The link for your virtual event
-                  </p>
-                </label>
-                <div className="mt-1 sm:mt-0 sm:col-span-2">
-                  <input
-                    id="event-link"
-                    name="event-link"
-                    type="text"
-                    className="block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
-                    required
-                    value={eventLink}
-                    onChange={(e) => setEventLink(e.target.value)}
-                  />
-                </div>
-              </div> */}
               <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:pt-5">
                 <label
                   htmlFor="about"
-                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2"
-                >
+                  className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
                   Circle description
                   <p className="mt-2 text-sm text-gray-400">
                     Let people know what your circle is about and your savings
@@ -402,8 +298,7 @@ export default function CreateEvent() {
                     rows={10}
                     className="max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
                     value={eventDescription}
-                    onChange={(e) => setEventDescription(e.target.value)}
-                  />
+                    onChange={(e) => setEventDescription(e.target.value)}/>
                 </div>
               </div>
             </div>
@@ -417,8 +312,7 @@ export default function CreateEvent() {
                 </Link>
                 <button
                   type="submit"
-                  className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
+                  className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                   Create
                 </button>
               </div>
@@ -427,9 +321,9 @@ export default function CreateEvent() {
         )}
         {success && eventID && (
           <div>
-            Success! Please wait a few minutes, then check out your event page{" "}
+            Success! Please wait a few minutes, then check out your saving circle page{" "}
             <span className="font-bold">
-              <Link href={`/event/${eventID}`}>here</Link>
+              <Link href={`/circle/${eventID}`}>here</Link>
             </span>
           </div>
         )}

@@ -1,17 +1,15 @@
-import abiJSON from "../utils/Main.json";
+import abiJSON from "./ABI/SimpleSavingCircle.json";
 import { ethers } from "ethers";
+import { address } from "./contractAddress";
 
 function connectContract() {
-  /*
-     hardcoded the main contract address here for now
-     we can also call deploy script to get the address
-  */
-  const contractAddress = "0xa3eC5F9725836D8ed92d420aBf31938969aF97C8";
-  const contractABI = abiJSON.abi;
+  const contractAddress = address; // updates everytime deloy-simple is ran
+  console.log("Contract Address: ", address);
+  const contractABI = abiJSON;
+  console.log("ABI: " + contractABI);
   let mainContract;
   try {
     const { ethereum } = window;
-
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
     mainContract = new ethers.Contract(contractAddress, contractABI, signer); // instantiating new connection to the contract
@@ -21,5 +19,4 @@ function connectContract() {
   console.log("success");
   return mainContract;
 }
-
 export default connectContract;

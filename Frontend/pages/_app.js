@@ -8,15 +8,15 @@ import client from "../apollo-client";
 import Layout from "../components/Layout";
 import "../styles/globals.css";
 
-const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
+const infuraId = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
 const { chains, provider } = configureChains(
-  [chain.polygon],
+  [chain.goerli],
   [infuraProvider({ infuraId }), publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
-  appName: "web3rsvp",
+  appName: "circlefi",
   chains,
 });
 

@@ -9,8 +9,10 @@
     "compile": "hardhat compile",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy-main": "hardhat run scripts/deploy-main.ts",
-    "deploy-saving-circle": "ts-node ./scripts/deploy-saving-circle.ts 0.1 4 1 0xC0c630f5c9A78A75a92617852AD0F4E80BF252Cf",
-    "test-saving-circle": "ts-node ./scripts/test-saving-circle"
+    "deploy-saving-circle": "ts-node ./scripts/deploy-saving-circle.ts 0.001 4 1 0xC0c630f5c9A78A75a92617852AD0F4E80BF252Cf",
+    "test-saving-circle": "ts-node ./scripts/test-saving-circle",
+    "deploy-simple": "ts-node ./scripts/deploy-simple.ts",
+    "test-simple": "ts-node ./scripts/test-simple.ts 0.001 4 1 1"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.4.1",
@@ -18,7 +20,8 @@
     "@openzeppelin/contracts": "^4.7.3",
     "@tableland/evm": "^2.0.4",
     "chai": "^4.3.6",
-    "hardhat": "^2.9.3"
+    "hardhat": "^2.9.3",
+    "hardhat-abi-exporter": "^2.10.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

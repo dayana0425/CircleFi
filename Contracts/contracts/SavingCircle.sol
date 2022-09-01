@@ -39,6 +39,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
     uint256 public groupSize; // Number of slots for users to participate on the saving circle
     uint256 public payTime = 0; // How many days users have to pay per round
     address public host; // The user that deploy the contract is the administrator / host
+    bytes32 public id;
 
     // Saving Circle Participants Variables
     mapping(address => Participant) public participants; // participants account address maps to their data
@@ -54,6 +55,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
     uint256 public paidCounter = 0; // Participants that fully paid for the current round
     uint8 public round = 1; // Current round
     uint256 public startTime; // Start time of round
+    uint256 public circleStartTime;
 
     // Chainlink vrf variablestotalDepositsSum
     address vrf_cordinator_goerli = 0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D; // from chainlink docs - ethereum testnet - address of $link token smart contract
@@ -69,14 +71,24 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
     uint public randomResult;
 
     // Events
-    event SavingCircleEstablished(uint256 saveAmount, uint256 groupSize);
-    event RegisterUser(address user);
-    event PaidDeposit(address user, bool success);
-    event PaidRound(address user, bool success);
-    event PartiallyPaidRound(address user, bool success);
-    event StartedFirstRound(uint256 startTime);
-    event EveryonePaid(address savingCircle, bool success);
-    event RoundEndedAndUserWasPaidOut(address user, bool success);
+    event NewSavingCircleCreated(
+        bytes32 SavingCircleID,
+        address circleAddress,
+        address hostAddress,
+        uint256 creationTimestamp,
+        uint256 groupSize,
+        uint256 deposit,
+        uint256 saveAmount,
+        uint256 payTime
+    );
+    event RegisterUser(bytes32 savingCircleID, address circleAddress, address participant);
+    event PaidDeposit(address user, bytes32 savingCircleID, address circleAddress, bool success);
+    event EveryonePaidDeposit(bytes32 savingCircleID, address circleAddress, uint256 totalDepositFeesSum);
+    event PaidRound(address user, uint256 amount, bool success);
+    event PartiallyPaidRound(address user, uint256 amount, bool success);
+    event StartedFirstRound(uint256 startTime, bytes32 savingCircleID, address circleAddress, uint256 groupSize);
+    event EveryonePaid(address savingCircle, uint256 availableAmount, bool success);
+    event RoundEndedAndUserWasPaidOut(address user, uint256 amount, bool success);
     event AllRoundsCompleted(address savingCircle, bool success);
     event CompleteCircle(address roundAddress, uint256 startAt, uint256 endAt);
     event EmergencyWithdrawal(
@@ -106,6 +118,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         );
         require(_payTime >= 1, "Pay Time cannot be less than a day.");
 
+
         // saving circle setup
         saveAmount = _saveAmountPerRound;
         depositFee = _saveAmountPerRound;
@@ -114,13 +127,29 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         host = _host;
         stage = Stages.Setup;
 
+        // Creating a unique identifier for saving circle
+        bytes32 savingCircleID = keccak256(
+            abi.encodePacked(
+                host,
+                address(this),
+                block.timestamp,
+                depositFee,
+                groupSize,
+                saveAmount,
+                payTime
+            )
+        );
+
+        // save id that was created^
+        id = savingCircleID;
+
         // register host as participant
         participantCounter++;
         participantAddresses.push(_host);
         possibleWinnerAddresses.push(_host);
 
         // escrow - TODO: msg.value is in ETH => needs to be in DAI
-        Escrow escrow = new Escrow{value: msg.value}(host, msg.sender, depositFee);
+        Escrow escrow = new Escrow{value: msg.value}(host, msg.sender);
         participants[_host] = Participant(
             _host,
             msg.value,
@@ -131,9 +160,9 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         );
 
         totalDepositFeesSum += depositFee;        
-        emit PaidDeposit(_host, true);
-        emit RegisterUser(_host);
-        emit SavingCircleEstablished(saveAmount, groupSize);
+        emit PaidDeposit(msg.sender, id, address(this), true);
+        emit RegisterUser(id, address(this), msg.sender);
+        emit NewSavingCircleCreated(savingCircleID , address(this), host, block.timestamp, groupSize, depositFee, saveAmount, payTime);
     }
 
     /* 
@@ -155,7 +184,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         possibleWinnerAddresses.push(msg.sender);
 
         // escrow
-        Escrow escrow = new Escrow(host, msg.sender, depositFee);
+        Escrow escrow = new Escrow(host, msg.sender);
 
         participants[msg.sender] = Participant(
             msg.sender,
@@ -167,9 +196,11 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         ); // user address, deposit fee, savings amount, active in circle, amount paid *SO FAR* for round, if they fully paid
         totalDepositFeesSum += depositFee; // keeping track of all deposits paid so far
 
-        //TODO: Emit Event for when all spots are filled
-        emit PaidDeposit(msg.sender, true);
-        emit RegisterUser(msg.sender);
+        emit PaidDeposit(msg.sender, id, address(this), true);
+        emit RegisterUser(id, address(this), msg.sender);
+        if(participantCounter == groupSize){ 
+            emit EveryonePaidDeposit(id, address(this), totalDepositFeesSum);
+        }
     }
 
     function startFirstRound() external onlyHost(host) atStage(Stages.Setup) {
@@ -183,7 +214,9 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         );
         stage = Stages.Save;
         startTime = block.timestamp;
-        emit StartedFirstRound(startTime);
+        circleStartTime = startTime;
+
+        emit StartedFirstRound(startTime, id, address(this), groupSize);
     }
 
     /* 
@@ -214,23 +247,24 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             "Incorrect Payment."
         );
 
+
         // sum incoming amount with past payments to check whether they have completely paid or not
         uint256 sum = participants[msg.sender].amountPaid + _payAmount;
         // if user is completing full payment
         if (sum == saveAmount) {
             participants[msg.sender].fullyPaid = true;
             paidCounter++;
-            emit PaidRound(msg.sender, true);
+            emit PaidRound(msg.sender, _payAmount, true);
         }
         // if user is making an incremental payment
         else {
             participants[msg.sender].amountPaid += _payAmount;
-            emit PartiallyPaidRound(msg.sender, true);
+            emit PartiallyPaidRound(msg.sender, _payAmount, true);
         }
 
         // emit event when everyone has paid
         if (paidCounter == participantCounter) {
-            emit EveryonePaid(address(this), true);
+            emit EveryonePaid(address(this), address(this).balance, true);
         }
     }
 
@@ -294,7 +328,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
         paidCounter = 0; // participants that paid
         startTime = block.timestamp; // start time of round
 
-        emit RoundEndedAndUserWasPaidOut(winnerAddress, sent);
+        emit RoundEndedAndUserWasPaidOut(winnerAddress, address(this).balance, sent);
     }
 
     /* 
@@ -308,10 +342,7 @@ contract SavingCircle is Modifiers, VRFConsumerBase {
             "Not everyone has been paid out so saving circle cannot be completed."
         );
         payOutDeposit(participantAddresses);
-
-        // TODO update Tableland tables and mint NFTs for users that need them
-
-        emit CompleteCircle(address(this), startTime, block.timestamp);
+        emit CompleteCircle(address(this), circleStartTime, block.timestamp);
     }
 
     /*

@@ -4,14 +4,15 @@ import * as savingCircleJson from "../artifacts/contracts/SavingCircle.sol/Savin
 import { getDefaultProvider } from "ethers";
 
 const main = async () => {
-  const provider = getDefaultProvider();
+  console.log("HIGIGGFIIFG");
   const mainContractFactory = await ethers.getContractFactory('Main');
   const mainContract = await mainContractFactory.deploy();
   await mainContract.deployed();
   console.log("Contract deployed to:", mainContract.address);
 
   const [host, address1, address2, address3] = await ethers.getSigners();
-  const saveAmountPerRound = ethers.utils.parseEther("0.01");
+  const saveAmountPerRound = ethers.utils.parseEther("0.001");
+  console.log("SAVE: ", saveAmountPerRound);
   const deposit = saveAmountPerRound;
   const groupSize = 4;
   const payTime = 1;
