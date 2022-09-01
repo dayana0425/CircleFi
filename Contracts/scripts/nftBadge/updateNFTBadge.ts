@@ -1,7 +1,6 @@
 import { ethers } from "hardhat";
 import "dotenv/config";
 import { incrementRoundsForExistingUser, pushUserToTable } from "./tables/modifyTableData";
-import { CircleNFT } from "../../typechain";
 
 // This key is already public on Herong's Tutorial Examples - v1.03, by Dr. Herong Yang
 // Do never expose your keys like this
@@ -58,13 +57,13 @@ async function mintOrUpdateNFT() {
     } else {
 
         // If the user doesn't hold the NFT yet, mint the inital version of the NFT
-        console.log("User doesn't have any of this NFT. Need to mint beginner tier NFT.");
+        console.log(`User doesn't have any of this NFT. Need to mint beginner tier NFT at tokenId ${maxTokenId.toNumber()}.`);
 
         await pushUserToTable(1, maxTokenId.toNumber(), mainTable, attributesTable);
         console.log(`Metadata generated and pushed to table for user with tokenId ${maxTokenId}`);
 
-        let mintTx = await nftContract.mint();
-        await mintTx.wait();
+        // let mintTx = await nftContract.mint();
+        // await mintTx.wait();
         console.log("NFT has been successfully minted for user.");
     }
 }

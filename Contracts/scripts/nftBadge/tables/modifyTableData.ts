@@ -2,7 +2,7 @@ import { utils, Wallet } from "ethers";
 import { generateNFTMetadata } from "./generateMetadata";
 import { MetadataResponse } from "../../types/metadataTypes";
 
-import { connect } from "@tableland/sdk";
+import { connect, Connection } from "@tableland/sdk";
 import { setupProvider } from "../../utils/providerUtils";
 import "dotenv/config";
 import { ethers } from "hardhat";
@@ -10,20 +10,22 @@ import { ethers } from "hardhat";
 const CHAIN = "ethereum-goerli";
 
 // 1. Push new statements to table
-export async function pushUserToTable(completedCircles: number, nftId: number, mainTable: string, attributesTable: string) {
+export async function pushUserToTable(completedCircles: number, nftId: number, mainTableName: string, attributesTableName: string) {
     // Connect to Tableland
     const [signer] = await ethers.getSigners();
     const tableland = await connect({ signer, chain: CHAIN });
 
+    printCurrentTables(tableland, mainTableName, attributesTableName);
+
     // Prepare the metadata (handles all of the IPFS-related actions & JSON parsing).
     const metadata: MetadataResponse = await generateNFTMetadata(completedCircles, nftId);
-    console.log(`Metadata response: ${metadata}`);
 
+    console.log("Generating SQL statements for table updates.");
     // Destructure the metadata values from the passed object
     const { id, name, description, image, attributes } = metadata;
     // INSERT statement for a 'main' table that includes some shared data across any NFT
     // Schema: id int, name text, description text, image text
-    let mainTableStatement = `INSERT INTO ${mainTable} (id, name, description, image) VALUES (${id}, '${name}', '${description}', '${image}');`;
+    let mainTableStatement = `INSERT INTO ${mainTableName} (id, name, description, image) VALUES (${id}, '${name}', '${description}', '${image}');`;
     // Iterate through the attributes and create an INSERT statment for each value, pushed to `attributesTableStatements`
     const attributesTableStatements = []
     for await (let attribute of attributes) {
@@ -31,9 +33,10 @@ export async function pushUserToTable(completedCircles: number, nftId: number, m
         const { trait_type, value } = attribute;
         // INSERT statement for a separate 'attributes' table that holds attribute data, keyed by the NFT tokenId
         // Schema: id int, trait_type text, value text
-        const attributesStatement = `INSERT INTO ${attributesTable} (main_id, trait_type, value) VALUES (${id}, '${trait_type}', '${value}');`;
+        const attributesStatement = `INSERT INTO ${attributesTableName} (main_id, trait_type, value) VALUES (${id}, '${trait_type}', '${value}');`;
         attributesTableStatements.push(attributesStatement);
     }
+    console.log("Finished generating SQL statements for table updates.");
 
     // Prepare the SQL INSERT statements, which pass the table names to help prepare the statements
     // It returns an object with keys `main` (a single statement) and `attributes` (an array of statements)
@@ -50,18 +53,18 @@ export async function pushUserToTable(completedCircles: number, nftId: number, m
     let { hash: mainWriteTx } = await tableland.write(statement.main);
     let receipt = await tableland.receipt(mainWriteTx);
     if (receipt) {
-        console.log(`${mainTable} table: ${statement.main}`);
+        console.log(`${mainTableName} table: ${statement.main}`);
     } else {
-        throw new Error(`Write table error: could not get '${mainTable}' transaction receipt: ${mainWriteTx}`);
+        throw new Error(`Write table error: could not get '${mainTableName}' transaction receipt: ${mainWriteTx}`);
     }
     // Recall that `attributes` is an array of SQL statements for each `trait_type` and `value` for a `tokenId`
     for await (let attribute of statement.attributes) {
         let { hash: attrWriteTx } = await tableland.write(attribute)
         receipt = await tableland.receipt(attrWriteTx)
         if (receipt) {
-            console.log(`${attributesTable} table: ${attribute}`)
+            console.log(`${attributesTableName} table: ${attribute}`)
         } else {
-            throw new Error(`Write table error: could not get '${attributesTable}' transaction receipt: ${attrWriteTx}`)
+            throw new Error(`Write table error: could not get '${attributesTableName}' transaction receipt: ${attrWriteTx}`)
         }
     }
 }
@@ -70,21 +73,7 @@ export async function incrementRoundsForExistingUser(nftId: number, mainTableNam
     const [signer] = await ethers.getSigners();
     const tableland = await connect({ signer, chain: CHAIN });
 
-    // Get info for all tables associated with your account
-    const tables = await tableland.list();
-    console.log(`Tables: ${tables}`);
-
-    // Read all records in the main table
-    const { columns: mc, rows: mr } = await tableland.read(
-        `SELECT * FROM ${mainTableName}`
-    );
-    console.log(mc, mr);
-
-    // Read all records in the attributes table
-    const { columns: ac, rows: ar } = await tableland.read(
-        `SELECT * FROM ${attributesTableName}`
-    );
-    console.log(ac, ar);
+    printCurrentTables(tableland, mainTableName, attributesTableName);
 
     const completedCirclesResult = await tableland.read(
         `SELECT * from ${attributesTableName} WHERE main_id=${nftId} and trait_type='NumCompletedCircles'`
@@ -133,22 +122,20 @@ export async function incrementRoundsForExistingUser(nftId: number, mainTableNam
     }
 }
 
-async function incrementRoundsForExistingUserTest() {
-    const wallet = new Wallet(process.env.PRIVATE_KEY ?? "8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f");
-    console.log(`Using address ${wallet.address}`);
-    const provider = setupProvider();
-    const signer = wallet.connect(provider);
-    const balanceBN = await signer.getBalance();
-    const balance = Number(utils.formatEther(balanceBN));
-    console.log(`Wallet balance: ${balance}`);
-    if (balance < 0.01) {
-        throw new Error("Not enough ether");
-    }
-    const result = await incrementRoundsForExistingUser(0, "table_nft_main_5_504", "table_nft_attributes_5_505");
-}
+async function printCurrentTables(tableland: Connection, mainTableName: string, attributesTableName: string) {
+    // Get info for all tables associated with your account
+    const tables = await tableland.list();
+    console.log(`Tables: ${tables}`);
 
-// For testing
-/* incrementRoundsForExistingUserTest().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-}); */
+    // Read all records in the main table
+    const { columns: mc, rows: mr } = await tableland.read(
+        `SELECT * FROM ${mainTableName}`
+    );
+    console.log(mc, mr);
+
+    // Read all records in the attributes table
+    const { columns: ac, rows: ar } = await tableland.read(
+        `SELECT * FROM ${attributesTableName}`
+    );
+    console.log(ac, ar);
+}

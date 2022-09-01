@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 import "dotenv/config";
-import * as CircleNFTJson from "../../artifacts/contracts/CircleNFT.sol/CircleNFT.json";
-import { setupProvider } from "../utils/providerUtils";
-import { CircleNFT } from "../../typechain";
-import { createTables } from "./tables/createTables";
+import * as CircleFiNFTJson from "../artifacts/contracts/CircleFiNFT.sol/CircleFiNFT.json";
+import { setupProvider } from "../scripts/utils/providerUtils";
+import { CircleFiNFT } from "../typechain";
+import { createTables } from "../scripts/nftBadge/tables/createTables";
 
 // This key is already public on Herong's Tutorial Examples - v1.03, by Dr. Herong Yang
 // Do never expose your keys like this
@@ -13,6 +13,10 @@ const EXPOSED_KEY =
 // Set the Tableand gateway as the `baseURI` where a `tokenId` will get appended upon `tokenURI` calls
 // Note that `mode=list` will format the metadata per the ERC721 standard
 const BASE_URI = `https://testnet.tableland.network/query?mode=list&s=`;
+
+const REGISTRY = "0xDA8EA22d092307874f30A1F277D1388dca0BA97a";
+const MAIN_TABLE_PREFIX = "table_nft_main";
+const ATTRIBUTES_TABLE_PREFIX = "table_nft_attributes";
 
 async function main() {
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? EXPOSED_KEY);
@@ -27,22 +31,23 @@ async function main() {
     }
 
     // Deploying metadata tables to Tableland
-    const { mainName, attributesName } = await createTables(signer);
-    console.log(`Main name: ${mainName}; attributes name: ${attributesName}`);
+    // const { mainName, attributesName } = await createTables(signer);
+    // console.log(`Main name: ${mainName}; attributes name: ${attributesName}`);
     
     // Creating contract factory
     const nftContractFactory = new ethers.ContractFactory(
-        CircleNFTJson.abi,
-        CircleNFTJson.bytecode,
+        CircleFiNFTJson.abi,
+        CircleFiNFTJson.bytecode,
         signer
     );
     
-    console.log(`Deploying CircleNFT contract`);
-    const nftContract: CircleNFT = await nftContractFactory.deploy(
+    console.log(`Deploying CircleFiNFT contract`);
+    const nftContract: CircleFiNFT = await nftContractFactory.deploy(
+        REGISTRY,
         BASE_URI,
-        mainName,
-        attributesName
-    ) as CircleNFT;
+        MAIN_TABLE_PREFIX,
+        ATTRIBUTES_TABLE_PREFIX
+    ) as CircleFiNFT;
     console.log("Awaiting confirmations");
     await nftContract.deployed();
     console.log("Completed");
