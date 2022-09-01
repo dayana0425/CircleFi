@@ -292,7 +292,7 @@ function Event({ event }) {
       <Head>
         <title>{event.circleName} | CircleFi</title>
         <meta name="description" content={event.description} />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/circlefi.ico" />
       </Head>
       <section className="relative py-12 flex flex-row gap-12">
         {loading && (
