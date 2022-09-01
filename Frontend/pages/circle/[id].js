@@ -13,9 +13,7 @@ import TestImage from "../../public/images/mojito.png";
 import ETHLogo from "../../public/images/ETHLogo.svg";
 import {
   EmojiHappyIcon,
-  TicketIcon,
   UsersIcon,
-  LinkIcon,
   XCircleIcon,
   CheckCircleIcon,
 } from "@heroicons/react/outline";
