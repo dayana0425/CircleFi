@@ -37,9 +37,10 @@ export default function MyUpcomingEvents() {
     );
   if (error)
     return (
-      <Dashboard page="events" isUpcoming={true}>
-        <p>`Error GHIdefds! ${error.message}`</p>
-      </Dashboard>
+      // <Dashboard page="events" isUpcoming={true}>
+      //   <p>`Error GHIdefds! ${error.message}`</p>
+      // </Dashboard>
+      <></>
     );
 
   return (
