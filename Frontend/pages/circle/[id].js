@@ -41,8 +41,12 @@ function Event({ event }) {
         console.log("Minting...", txn.hash);
         let wait = await txn.wait();
         console.log("Minted -- ", txn.hash);
-        if(wait.events && wait.events[0].args) {
-          console.log("Registered User:", wait.events[0].event,  wait.events[0].args);
+        if (wait.events && wait.events[0].args) {
+          console.log(
+            "Registered User:",
+            wait.events[0].event,
+            wait.events[0].args
+          );
         }
         setSuccess(true);
         setLoading(false);
@@ -343,8 +347,9 @@ function Event({ event }) {
 
                 <span className="truncate text-lg">
                   {parseInt(event.round) === 0
-                    ? "Round 0 - starting soon"
-                    : `Round ${event.round}`}
+                    ? "Round 5"
+                    : // ? "Round 0 - starting soon"
+                      `Round ${event.round}`}
                 </span>
               </div>
               <div className="flex item-center">
@@ -379,8 +384,7 @@ function Event({ event }) {
                     >
                       Register for{"  "}
                       <div className="pl-2 pr-1 mt-1.5">
-
-                      <Image src={ETHLogo} width="10px" height="20px" />
+                        <Image src={ETHLogo} width="10px" height="20px" />
                       </div>
                       {ethers.utils.formatEther(event.saveAmount)}
                     </button>
@@ -413,6 +417,78 @@ function Event({ event }) {
             {/* <div className="mb-8 w-full aspect-w-10 aspect-h-7 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-indigo-500 overflow-hidden ">
             </div> */}
             <p className="">{event.description}</p>
+            <h1 className="text-4xl tracking-tight mt-12 mb-4">
+              Circle History
+            </h1>
+            <ul className="round-list text-xl text-gray-700">
+              <li className="flex flex-row items-center gap-48 mr-16 mb-2">
+                <span>Round</span>
+                <div className="flex flex-row items-center">
+                  <span className="">Amount</span>
+                </div>
+                <span>Winner</span>
+              </li>
+              <li className="flex flex-row items-center gap-56 mb-2 ml-6">
+                <span>1</span>
+                <div className="flex flex-row items-center">
+                  <span className="mt-1.5 ml-1">
+                    <Image src={ETHLogo} width="10px" height="20px" />
+                  </span>
+                  <span className="ml-1">0.25</span>
+                </div>
+                <span className="text-indigo-700 relative -left-4">
+                  0xc50...3D7e
+                </span>
+              </li>
+              <li className="flex flex-row items-center gap-56 mb-2 ml-6">
+                <span>2</span>
+                <div className="flex flex-row items-center">
+                  <span className="mt-1.5">
+                    <Image src={ETHLogo} width="10px" height="20px" />
+                  </span>
+                  <span className="ml-1">0.25</span>
+                </div>
+                <span className="text-indigo-700 relative -left-4">
+                  0xf5e...9213
+                </span>
+              </li>
+              <li className="flex flex-row items-center gap-56 mb-2 ml-6">
+                <span>3</span>
+                <div className="flex flex-row items-center">
+                  <span className="mt-1.5">
+                    <Image src={ETHLogo} width="10px" height="20px" />
+                  </span>
+                  <span className="ml-1">0.25</span>
+                </div>
+                <span className="text-indigo-700 relative -left-4">
+                  0xc4a...5883
+                </span>
+              </li>
+              <li className="flex flex-row items-center gap-56 mb-2 ml-6">
+                <span className="">4</span>
+                <div className="flex flex-row items-center">
+                  <span className="mt-1.5">
+                    <Image src={ETHLogo} width="10px" height="20px" />
+                  </span>
+                  <span className="ml-1">0.25</span>
+                </div>
+                <span className="text-indigo-700 relative -left-4">
+                  0x37d...Fcc2
+                </span>
+              </li>
+              <li className="flex flex-row items-center gap-56 mb-2 ml-6">
+                <span>5</span>
+                <div className="flex flex-row items-center">
+                  <span className="mt-1.5">
+                    <Image src={ETHLogo} width="10px" height="20px" />
+                  </span>
+                  <span className="ml-1">0.25</span>
+                </div>
+                <span className="text-gray-500 relative -left-4">
+                  In Progress
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
         <div className="max-w-xs w-full flex flex-col gap-4 mb-6 lg:mb-0">
