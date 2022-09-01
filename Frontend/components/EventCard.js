@@ -4,16 +4,17 @@ import formatTimestamp from "../utils/formatTimestamp";
 
 export default function EventCard({ id, name, imageURL }) {
   return (
-    <div className="group relative clickable-card rounded-lg focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-indigo-500">
-      <Link href={`/event/${id}`}>
+    <div className="group relative clickable-card rounded-lg">
+      <Link href={`/circle/${id}`}>
         <a className="clickable-card__link"></a>
       </Link>
-      <div className="block w-full aspect-w-10 aspect-h-7 rounded-lg bg-gray-100 overflow-hidden relative group-hover:opacity-75">
+      <div className="circle-index-view block w-full aspect-w-10 aspect-h-7 mr-0 ml-0 rounded-full bg-gray-100 overflow-hidden relative group-hover:opacity-75 mb-6">
         {imageURL && <Image src={imageURL} alt="event image" layout="fill" />}
       </div>
-      <p className="mt-2 block text-sm text-gray-500">
+      <p className="mt-2 block text-sm text-gray-500"></p>
+      <p className="block text-base text-center pr-8 font-medium text-gray-900">
+        {name}
       </p>
-      <p className="block text-base font-medium text-gray-900">{name}</p>
     </div>
   );
 }

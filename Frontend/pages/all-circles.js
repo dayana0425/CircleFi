@@ -29,30 +29,40 @@ export default function Home() {
     );
   if (error)
     return (
-
       <Dashboard>
         <p>`Error! ${error.message}`</p>
       </Dashboard>
     );
 
   return (
-    <Dashboard>
-      <ul
-        role="list"
-        className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
-        { data && data.savingCircles.length > 0 && data.savingCircles.map((event) => (
+    // <Dashboard>
+    <div className="max-w-7xl flex justify-center items-center mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap justify-start items-center py-8">
+        {/* <DashboardNav page={page} /> */}
+        <div className="sm:w-10/12 sm:pl-8">
+          <h1 className="mb-8 text-2xl tracking-tight font-extrabold text-gray-900 sm:text-3xl md:text-4xl mt-8 mb-16">
+            All Circles
+          </h1>
+        </div>
 
-            <li key={event.id}>
-              <EventCard
-                id={event.id}
-                name={event.circleName}
-                imageURL={event.imageURL}/> 
-              
-            </li>
-          ))
-        }
-      </ul>
-    </Dashboard>
-
+        <ul
+          role="list"
+          className="grid grid-cols-2 gap-x-12 gap-y-16 grid-cols-5"
+        >
+          {data &&
+            data.savingCircles.length > 0 &&
+            data.savingCircles.map((event) => (
+              <li key={event.id}>
+                <EventCard
+                  id={event.id}
+                  name={event.circleName}
+                  imageURL={event.imageURL}
+                />
+              </li>
+            ))}
+        </ul>
+      </div>
+    </div>
+    // </Dashboard>
   );
 }
