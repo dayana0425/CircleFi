@@ -29,6 +29,7 @@ export default function Home() {
     );
   if (error)
     return (
+
       <Dashboard>
         <p>`Error! ${error.message}`</p>
       </Dashboard>
@@ -40,6 +41,7 @@ export default function Home() {
         role="list"
         className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
         { data && data.savingCircles.length > 0 && data.savingCircles.map((event) => (
+
             <li key={event.id}>
               <EventCard
                 id={event.id}
@@ -51,5 +53,6 @@ export default function Home() {
         }
       </ul>
     </Dashboard>
+
   );
 }

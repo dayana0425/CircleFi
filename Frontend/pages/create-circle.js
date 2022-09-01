@@ -153,7 +153,7 @@ export default function CreateEvent() {
         {loading && (
           <Alert
             alertType={"loading"}
-            alertBody={"Please wait"}
+            alertBody={"Creating Circle - Please wait"}
             triggerAlert={true}
             color={"white"}
           />
