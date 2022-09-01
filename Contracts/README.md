@@ -23,5 +23,10 @@ yarn test-saving-circle
 `0x8Bb193665aE82148292A11f8C2e60Fb3176227BA`
 
 ### Simple Saving Circle Contract Address:
+`0x968282B5c317294D96aE033199499a35350F136c`
 
-`0x61f452de1cC6d18621261A574272B56d3C2A5907`
+```
+# Simple Saving Circle Commands
+deploy-simple
+test-simple
+```

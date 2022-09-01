@@ -13,9 +13,7 @@ import TestImage from "../../public/images/mojito.png";
 import ETHLogo from "../../public/images/ETHLogo.svg";
 import {
   EmojiHappyIcon,
-  TicketIcon,
   UsersIcon,
-  LinkIcon,
   XCircleIcon,
   CheckCircleIcon,
 } from "@heroicons/react/outline";
@@ -292,7 +290,7 @@ function Event({ event }) {
       <Head>
         <title>{event.circleName} | CircleFi</title>
         <meta name="description" content={event.description} />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/circlefi.ico" />
       </Head>
       <section className="relative py-12 flex flex-row gap-12">
         {loading && (

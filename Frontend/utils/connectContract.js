@@ -1,12 +1,12 @@
 import abiJSON from "./ABI/SimpleSavingCircle.json";
 import { ethers } from "ethers";
-import { address } from "./contractAddress";
+import { contractAddress } from "./contractAddress";
 
 function connectContract() {
-  const contractAddress = address; // updates everytime deloy-simple is ran
+  const address = contractAddress;
   console.log("Contract Address: ", address);
   const contractABI = abiJSON;
-  console.log("ABI: " + contractABI);
+  console.log("ABI: ", contractABI);
   let mainContract;
   try {
     const { ethereum } = window;
