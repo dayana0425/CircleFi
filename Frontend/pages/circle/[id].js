@@ -349,16 +349,16 @@ function Event({ event }) {
 
                 <span className="truncate text-lg">
                   {parseInt(event.round) === 0
-                    ? "Round 5"
-                    : // ? "Round 0 - starting soon"
-                      `Round ${event.round}`}
+                    // ? "Round 5"
+                    ? "Round 0 - starting soon"
+                    :  `Round ${event.round}`}
                 </span>
               </div>
               <div className="flex item-center">
                 <UsersIcon className="w-6 mr-2" />
                 <span className="truncate">
-                  {/* {event.participantCounter} / {event.groupSize} members */}
-                  3 / 5 registered
+                  {event.participantCounter} / {event.groupSize} members
+                  {/* 3 / 5 registered */}
                 </span>
               </div>
               <div className="flex items-center">
@@ -367,7 +367,7 @@ function Event({ event }) {
                   Hosted by{" "}
                   <a
                     className="text-indigo-800 truncate hover:underline"
-                    // href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}address/${event.eventOwner}`}
+                    href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}address/${event.eventOwner}`}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -389,7 +389,7 @@ function Event({ event }) {
                       <div className="pl-2 pr-1 mt-1.5">
                         <Image src={ETHLogo} width="10px" height="20px" />
                       </div>
-                      {/* {ethers.utils.formatEther(event.saveAmount)} */}0.25
+                      {ethers.utils.formatEther(event.saveAmount)}
                     </button>
                   ) : (
                     <ConnectButton />
@@ -411,6 +411,78 @@ function Event({ event }) {
                   )}
                 </span>
               </div>
+              <div className="flex item-center mt-8">
+                {account ? (
+
+                    account.address.toString().toLowerCase().trim() ===
+                    event.host.toString().trim() ? (
+                    <div className="flex flex-col gap-4">
+                      <h1 className="text-indigo-900 font-semibold">
+                        Host Controls
+                      </h1>
+                      <div className="flex item-center">
+                        <span className="truncate">
+                          <button
+                            type="button"
+                            className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            onClick={startFirstRound}
+                          >
+                            Start First Round
+                          </button>
+                        </span>
+                      </div>
+                      <div className="flex item-center">
+                        <span className="truncate">
+                          <button
+                            type="button"
+                            className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            onClick={endRoundAndStartNextRound}
+                          >
+                            End Round
+                          </button>
+                        </span>
+                      </div>
+                      <div className="flex item-center">
+                        <span className="truncate">
+                          <button
+                            type="button"
+                            className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            onClick={endRoundAndStartNextRound}
+                          >
+                            Complete Saving Circle
+                          </button>
+                        </span>
+                      </div>
+                      <div className="flex item-center">
+                        <span className="truncate">
+                          <button
+                            type="button"
+                            className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-pink-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            onClick={extendDeadline}
+                          >
+                            Extend Deadline For Round
+                          </button>
+                        </span>
+                      </div>
+                      <div className="flex item-center">
+                        <span className="truncate">
+                          <button
+                            type="button"
+                            className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-pink-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            onClick={emergencyWithdrawal}
+                          >
+                            Emergency Withdrawl
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    ""
+                  )
+                ) : (
+                  ""
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -420,9 +492,7 @@ function Event({ event }) {
             {/* <div className="mb-8 w-full aspect-w-10 aspect-h-7 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-indigo-500 overflow-hidden ">
             </div> */}
             <p className="">{event.description}</p>
-            <h1 className="text-4xl tracking-tight mt-12 mb-4">
-              Circle History
-            </h1>
+            <h1 className="text-4xl tracking-tight mt-12 mb-4">History</h1>
             <ul className="round-list text-xl text-gray-700">
               <li className="flex flex-row items-center gap-48 mr-16 mb-2">
                 <span>Round</span>
@@ -432,18 +502,18 @@ function Event({ event }) {
                 <span>Winner</span>
               </li>
               <li className="flex flex-row items-center gap-56 mb-2 ml-6">
-                <span>1</span>
+                <span>#</span>
                 <div className="flex flex-row items-center">
                   <span className="mt-1.5 ml-1">
                     <Image src={ETHLogo} width="10px" height="20px" />
                   </span>
-                  <span className="ml-1">0.25</span>
+                  <span className="ml-1">cost</span>
                 </div>
                 <span className="text-indigo-700 relative -left-4">
-                  0xc50...3D7e
+                  address
                 </span>
               </li>
-              <li className="flex flex-row items-center gap-56 mb-2 ml-6">
+              {/* <li className="flex flex-row items-center gap-56 mb-2 ml-6">
                 <span>2</span>
                 <div className="flex flex-row items-center">
                   <span className="mt-1.5">
@@ -490,7 +560,7 @@ function Event({ event }) {
                 <span className="text-gray-500 relative -left-4">
                   In Progress
                 </span>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
@@ -499,9 +569,9 @@ function Event({ event }) {
             <h1 className="text-indigo-900 text-lg font-semibold">
               Participants
             </h1>
-            <li className="list-none text-black text-lg">
+            {/* <li className="list-none text-black text-lg">
               <ul className="mb-1 flex flex-row items-center gap-2">
-                0xc50...3D7e
+                {participant address goes here}
                 <Image
                   className="relative left-50"
                   height="40px"
@@ -509,112 +579,8 @@ function Event({ event }) {
                   src={BeginnerBadge}
                 />
               </ul>
-
-              <ul className="mb-1 flex flex-row items-center gap-2">
-                0xf5e...9213
-                <Image
-                  className="relative left-50"
-                  height="40px"
-                  width="40px"
-                  src={ProBadge}
-                />
-              </ul>
-              <ul className="mb-1 flex flex-row items-center gap-2">
-                0xc4a...5883
-                <Image
-                  className="relative left-50"
-                  height="40px"
-                  width="40px"
-                  src={ProBadge}
-                />
-              </ul>
-              <ul className="mb-1 flex flex-row items-center gap-2">
-                0x37d...Fcc2
-                <Image
-                  className="relative left-50"
-                  height="40px"
-                  width="40px"
-                  src={ExpertBadge}
-                />
-              </ul>
-              <ul className="mb-1 flex flex-row items-center gap-2">
-                0xc0c...52cf
-                <Image
-                  className="relative left-50"
-                  height="40px"
-                  width="40px"
-                  src={ExpertBadge}
-                />
-              </ul>
-            </li>
+            </li> */}
           </div>
-          {account ? (
-            account.address.toString().toLowerCase().trim() ===
-            event.host.toString().trim() ? (
-              <div className="flex flex-col gap-4  p-4">
-                <h1 className="text-indigo-900 font-semibold">Host Controls</h1>
-                <div className="flex item-center">
-                  <span className="truncate">
-                    <button
-                      type="button"
-                      className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      onClick={startFirstRound}
-                    >
-                      Start First Round
-                    </button>
-                  </span>
-                </div>
-                <div className="flex item-center">
-                  <span className="truncate">
-                    <button
-                      type="button"
-                      className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      onClick={endRoundAndStartNextRound}
-                    >
-                      End Round
-                    </button>
-                  </span>
-                </div>
-                <div className="flex item-center">
-                  <span className="truncate">
-                    <button
-                      type="button"
-                      className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-green-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      onClick={endRoundAndStartNextRound}
-                    >
-                      Complete Saving Circle
-                    </button>
-                  </span>
-                </div>
-                <div className="flex item-center">
-                  <span className="truncate">
-                    <button
-                      type="button"
-                      className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-pink-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      onClick={extendDeadline}
-                    >
-                      Extend Deadline For Round
-                    </button>
-                  </span>
-                </div>
-                <div className="flex item-center">
-                  <span className="truncate">
-                    <button
-                      type="button"
-                      className="w-full items-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-indigo-700 bg-pink-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      onClick={emergencyWithdrawal}
-                    >
-                      Emergency Withdrawl
-                    </button>
-                  </span>
-                </div>
-              </div>
-            ) : (
-              ""
-            )
-          ) : (
-            ""
-          )}
         </div>
       </section>
     </div>
