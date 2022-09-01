@@ -20,18 +20,6 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/outline";
 
-function checkIfAlreadyRegistered() {
-  if (account) {
-    for (let i = 0; i < event.participantAddr.length; i++) {
-      const thisAccount = account.address.toLowerCase();
-      if (event.rsvps[i].attendee.id.toLowerCase() == thisAccount) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 function Event({ event }) {
   const { data: account } = useAccount();
   const [success, setSuccess] = useState(null);
@@ -51,8 +39,11 @@ function Event({ event }) {
         });
         setLoading(true);
         console.log("Minting...", txn.hash);
-        await txn.wait();
+        let wait = await txn.wait();
         console.log("Minted -- ", txn.hash);
+        if(wait.events && wait.events[0].args) {
+          console.log("Registered User:", wait.events[0].event,  wait.events[0].args);
+        }
         setSuccess(true);
         setLoading(false);
         setMessage("You successfully registered!");
