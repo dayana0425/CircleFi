@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import formatTimestamp from "../utils/formatTimestamp";
 
-export default function EventCard({ id, name, eventTimestamp, imageURL }) {
+export default function EventCard({ id, name, imageURL }) {
   return (
     <div className="group relative clickable-card rounded-lg focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-indigo-500">
       <Link href={`/event/${id}`}>
@@ -12,7 +12,6 @@ export default function EventCard({ id, name, eventTimestamp, imageURL }) {
         {imageURL && <Image src={imageURL} alt="event image" layout="fill" />}
       </div>
       <p className="mt-2 block text-sm text-gray-500">
-        {formatTimestamp(eventTimestamp)}
       </p>
       <p className="block text-base font-medium text-gray-900">{name}</p>
     </div>
